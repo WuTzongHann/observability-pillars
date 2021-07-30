@@ -16,5 +16,5 @@
     "testgRPC": "node scripts/gRPCClient.js"
   },
   "author": "",
-  "license": "ISC1"
+  "license": "ISC"
 }
