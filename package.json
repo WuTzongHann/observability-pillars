@@ -10,10 +10,9 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "startServer": "node scripts/index.js",
-    "testHTTP": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service\"}'",
-    "testgRPC": "node gRPCClient.js"
+    "test": "node gRPCClient.js",
+    "start": "node scripts/index.js",
+    "t": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service\"}'",
   },
   "author": "",
   "license": "ISC"
