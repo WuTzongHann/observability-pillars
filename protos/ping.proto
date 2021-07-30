@@ -1,0 +1,19 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package ping;
+
+service Ping {
+    rpc Echo (EchoRequest) returns (EchoReply) {}
+}
+
+message EchoRequest {
+    string message_id = 1;
+    string message_body = 2;
+}
+
+message EchoReply {
+    EchoRequest echo_request = 1;
+    string timestr = 2;
+    uint64 timestamp = 3;
+}
