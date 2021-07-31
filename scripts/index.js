@@ -1,7 +1,5 @@
-'use strict'
-
 const httpServer = require('./HTTPServer')
-httpServer.startServer()
-
 const gRPCServer = require('./gRPCServer')
+
+httpServer.startServer()
 gRPCServer.startServer()
