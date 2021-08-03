@@ -1,8 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
 
-package ping;
-
 service Ping {
     rpc Echo (EchoRequest) returns (EchoReply) {}
 }
