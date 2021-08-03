@@ -11,9 +11,11 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "startServer": "node server.js",
-    "testHTTP": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service\"}'",
-    "testgRPC": "node grpc/stubs/sendrequestecho.js"
+    "startserver": "node server.js",
+    "testhttphelloworld": "curl --request GET -i --url http://localhost:8080/",
+    "testhttphealth": "curl --request GET -i --url http://localhost:8080/health/",
+    "testhttpecho": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service\"}'",
+    "testgrpcecho": "node grpc/stubs/send-request-echo.js"
   },
   "author": "",
   "license": "ISC",

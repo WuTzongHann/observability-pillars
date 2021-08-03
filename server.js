@@ -7,8 +7,8 @@ import pingProto from './grpc/skeletons/ping.js'
 const httpServer = express()
 const httpPort = 8080
 httpServer.use(express.json())
-httpServer.use('/health', healthRouter)
 httpServer.use('/', defaultRouter)
+httpServer.use('/health', healthRouter)
 httpServer.listen(httpPort, () => {
   console.log(`HTTP Server listening at http://localhost:${httpPort}`)
 })
