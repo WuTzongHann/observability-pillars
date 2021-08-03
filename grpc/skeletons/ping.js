@@ -4,7 +4,7 @@ import { URL } from 'url'
 import path from 'path'
 
 const __dirname = new URL('.', import.meta.url).pathname
-const PROTO_PATH = path.join(__dirname + '/../models/protos/ping.proto')
+const PROTO_PATH = path.join(__dirname + '/../protos/ping.proto')
 const packageDefinition = protoLoader.loadSync(
   PROTO_PATH,
   {

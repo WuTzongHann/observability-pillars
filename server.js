@@ -2,7 +2,7 @@ import express from 'express'
 import defaultRouter from './routes/default.js'
 import healthRouter from './routes/health.js'
 import grpc from '@grpc/grpc-js'
-import pingProto from './bin/ping.js'
+import pingProto from './grpc/skeletons/ping.js'
 
 const httpServer = express()
 const httpPort = 8080
