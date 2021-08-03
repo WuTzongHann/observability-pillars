@@ -8,6 +8,7 @@ import pingServices from './grpc/services/ping.js'
 
 const HTTP_PORT = 8080
 const GRPC_PORT = 8081
+const PingProtoPath = './grpc/protos/ping.proto'
 
 const loadProtoDescriptor = protoPath => {
   const packageDefinition = protoLoader.loadSync(
@@ -32,8 +33,7 @@ const main = () => {
     console.log(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
   })
 
-  const pingProtoPath = './grpc/protos/ping.proto'
-  const pingDescriptor = loadProtoDescriptor(pingProtoPath)
+  const pingDescriptor = loadProtoDescriptor(PingProtoPath)
   const gRPCServer = new grpc.Server()
   gRPCServer.addService(pingDescriptor.Ping.service, { Echo: pingServices.Echo, Testing: pingServices.Testing })
   gRPCServer.bindAsync(`0.0.0.0:${GRPC_PORT}`, grpc.ServerCredentials.createInsecure(), () => {
