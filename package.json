@@ -15,7 +15,8 @@
     "testhttphelloworld": "curl --request GET -i --url http://localhost:8080/",
     "testhttphealth": "curl --request GET -i --url http://localhost:8080/health/",
     "testhttpecho": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service\"}'",
-    "testgrpcecho": "node grpc/stubs/send-request-echo.js"
+    "testgrpcecho": "node grpc/tools/ping-echo.js",
+    "testgrpctesting": "node grpc/tools/ping-testing.js"
   },
   "author": "",
   "license": "ISC",

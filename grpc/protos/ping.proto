@@ -3,6 +3,7 @@ import "google/protobuf/empty.proto";
 
 service Ping {
     rpc Echo (EchoRequest) returns (EchoReply) {}
+    rpc Testing (EchoRequest) returns (EchoReply) {}
 }
 
 message EchoRequest {
