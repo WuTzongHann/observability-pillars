@@ -1,7 +1,7 @@
 # Clone from GitHub
 ```
-git clone https://github.com/WuTzongHann/NodeJSServer.git
-cd NodeJSServer
+git clone https://github.com/WuTzongHann/nodejsserver.git
+cd nodejsserver
 ```
 
 # Install the dependencies
@@ -13,10 +13,6 @@ npm install
 ```
 npm run startServer
 ```
-OR
-```
-node scripts/index.js
-```
 -> example result
 ```
 HTTP Server listening at http://localhost:8080
@@ -26,14 +22,6 @@ gRPC Server listening at http://localhost:8081
 # HTTP Test
 ```
 npm run testHTTP
-```
-OR
-```
-curl --request POST \
--i \
---url http://localhost:8080/echo \
---header 'content-type: application/json' \
---data '{"message_id": "qwert","message_body": "hello ping service"}'
 ```
 -> example result
 ```
@@ -57,10 +45,6 @@ Keep-Alive: timeout=5
 # gRPC Test
 ```
 npm run testgRPC
-```
-OR
-```
-node scripts/gRPCClient.js
 ```
 -> example result
 ```
