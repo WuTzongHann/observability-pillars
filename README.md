@@ -20,8 +20,43 @@ gRPC Server listening at http://localhost:8081
 ```
 
 # HTTP Test
+Hello World
 ```
-npm run testHTTP
+npm run testhttphelloworld
+```
+-> example result
+```
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: text/html; charset=utf-8
+Content-Length: 12
+ETag: W/"c-Lve95gjOVATpfV8EL5X4nxwjKHE"
+Date: Tue, 03 Aug 2021 12:25:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+Hello World!
+```
+Get Health
+```
+npm run testhttphealth
+```
+-> example result
+```
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 15
+ETag: W/"f-VaSQ4oDUiZblZNAEkkN+sX+q3Sg"
+Date: Tue, 03 Aug 2021 12:25:53 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"status":"ok"}
+```
+Post Echo
+```
+npm run testhttpecho
 ```
 -> example result
 ```
@@ -29,28 +64,42 @@ HTTP/1.1 200 OK
 X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
 Content-Length: 121
-ETag: W/"79-NZ03aLzg1A5AYAcikVyKGbZODDI"
-Date: Fri, 30 Jul 2021 13:44:58 GMT
+ETag: W/"79-irbO1QtgYEZN3GpkVJ061dP3kmo"
+Date: Tue, 03 Aug 2021 12:26:53 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
 {
-	"message_id":"qwert",
-	"message_body":"hello ping service",
-	"timestr":"2021-07-30T13:44:58.225Z",
-	"timestamp":1627652698225
+  "message_id":"qwert",
+  "message_body":"hello ping service",
+  "timestr":"2021-08-03T12:26:53.964Z",
+  "timestamp":1627993613964
 }
 ```
 
 # gRPC Test
+Echo
 ```
-npm run testgRPC
+npm run testgrpcecho
 ```
 -> example result
 ```
 {
   echo_request: { message_id: 'qwert', message_body: 'hello ping service' },
-  timestr: 'Fri Jul 30 2021 21:42:12 GMT+0800 (Taipei Standard Time)',
-  timestamp: '1627652532997'
+  timestr: 'Tue Aug 03 2021 20:28:03 GMT+0800 (Taipei Standard Time)',
+  timestamp: '1627993683844'
 }
 ```
+Testing
+```
+npm run testgrpctesting
+```
+-> example result
+```
+{
+  echo_request: { message_id: 'testing', message_body: 'testing' },
+  timestr: 'Tue Aug 03 2021 20:28:25 GMT+0800 (Taipei Standard Time)',
+  timestamp: '1627993705922'
+}
+```
+
