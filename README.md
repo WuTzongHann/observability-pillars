@@ -13,7 +13,7 @@ npm install
 ```
 npm run startServer
 ```
--> example result
+-> Example Result
 ```
 HTTP Server listening at http://localhost:8080
 gRPC Server listening at http://localhost:8081
@@ -24,7 +24,7 @@ Hello World
 ```
 npm run testhttphelloworld
 ```
--> example result
+-> Example Result
 ```
 HTTP/1.1 200 OK
 X-Powered-By: Express
@@ -41,7 +41,7 @@ Get Health
 ```
 npm run testhttphealth
 ```
--> example result
+-> Example Result
 ```
 HTTP/1.1 200 OK
 X-Powered-By: Express
@@ -58,7 +58,7 @@ Post Echo
 ```
 npm run testhttpecho
 ```
--> example result
+-> Example Result
 ```
 HTTP/1.1 200 OK
 X-Powered-By: Express
@@ -82,7 +82,7 @@ Echo
 ```
 npm run testgrpcecho
 ```
--> example result
+-> Example Result
 ```
 {
   echo_request: { message_id: 'qwert', message_body: 'hello ping service' },
@@ -94,7 +94,7 @@ Testing
 ```
 npm run testgrpctesting
 ```
--> example result
+-> Example Result
 ```
 {
   echo_request: { message_id: 'testing', message_body: 'testing' },
