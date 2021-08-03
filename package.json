@@ -11,9 +11,9 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "startServer": "node scripts/index.js",
+    "startServer": "node server.js",
     "testHTTP": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service\"}'",
-    "testgRPC": "node scripts/gRPCClient.js"
+    "testgRPC": "node tools/sendrequestecho.js"
   },
   "author": "",
   "license": "ISC",
