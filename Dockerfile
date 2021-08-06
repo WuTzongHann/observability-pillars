@@ -1,8 +1,8 @@
 FROM ubuntu:20.04
-MAINTAINER richard
+# MAINTAINER richard
 
-COPY . /nodejsserver
-RUN make /nodejsserver
+# COPY . /nodejsserver
+# RUN make /nodejsserver
 
 # CMD apt-get update
 # CMD apt-get upgrade
