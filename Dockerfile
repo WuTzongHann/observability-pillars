@@ -1,4 +1,5 @@
 FROM ubuntu:20.04
+RUN mkdir ./ttttt
 # MAINTAINER richard
 
 # COPY . /nodejsserver
