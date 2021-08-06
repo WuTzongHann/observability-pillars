@@ -1,28 +1,45 @@
 import express from 'express'
+import grpc from '@grpc/grpc-js'
+import protoLoader from '@grpc/proto-loader'
+
 import defaultRouter from './routes/default.js'
 import healthRouter from './routes/health.js'
-// import grpc from '@grpc/grpc-js'
 import pingServices from './grpc/services/ping.js'
-import { URL } from 'url'
-import path from 'path'
-import gRPCConfig from './grpc/services/grpcconfig.js'
 
-const httpServer = express()
-const httpPort = 8080
-httpServer.use(express.json())
-httpServer.use('/', defaultRouter)
-httpServer.use('/health', healthRouter)
-httpServer.listen(httpPort, () => {
-  console.log(`HTTP Server listening at http://localhost:${httpPort}`)
-})
+const HTTP_PORT = 8080
+const GRPC_PORT = 8081
+const PingProtoPath = './grpc/protos/ping.proto'
 
-const __dirname = new URL('.', import.meta.url).pathname
-const PROTO_PATH = path.join(__dirname + '/grpc/protos/ping.proto')
-const protoDescriptor = gRPCConfig.GetProtoDescriptor(PROTO_PATH)
-const gRPCServer = new gRPCConfig.grpc.Server()
-const gRPCPort = 8081
-gRPCServer.addService(protoDescriptor.Ping.service, { Echo: pingServices.Echo, Testing: pingServices.Testing })
-gRPCServer.bindAsync(`0.0.0.0:${gRPCPort}`, gRPCConfig.grpc.ServerCredentials.createInsecure(), () => {
-  gRPCServer.start()
-  console.log(`gRPC Server listening at http://localhost:${gRPCPort}`)
-})
+const loadProtoDescriptor = protoPath => {
+  const packageDefinition = protoLoader.loadSync(
+    protoPath,
+    {
+      keepCase: true,
+      longs: String,
+      enums: String,
+      defaults: true,
+      oneofs: true
+    })
+  const protoDescriptor = grpc.loadPackageDefinition(packageDefinition)
+  return protoDescriptor
+}
+
+const main = () => {
+  const httpServer = express()
+  httpServer.use(express.json())
+  httpServer.use('/', defaultRouter)
+  httpServer.use('/health', healthRouter)
+  httpServer.listen(HTTP_PORT, () => {
+    console.log(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
+  })
+
+  const pingDescriptor = loadProtoDescriptor(PingProtoPath)
+  const gRPCServer = new grpc.Server()
+  gRPCServer.addService(pingDescriptor.Ping.service, { Echo: pingServices.Echo, Testing: pingServices.Testing })
+  gRPCServer.bindAsync(`0.0.0.0:${GRPC_PORT}`, grpc.ServerCredentials.createInsecure(), () => {
+    gRPCServer.start()
+    console.log(`gRPC Server listening at http://localhost:${GRPC_PORT}`)
+  })
+}
+
+main()
