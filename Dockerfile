@@ -2,7 +2,6 @@ FROM ubuntu:20.04
 MAINTAINER richard
 
 COPY . /nodejsserver
-RUN make /nodejsserver
 
 RUN apt-get update
 RUN apt-get upgrade
