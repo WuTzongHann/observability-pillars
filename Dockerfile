@@ -14,4 +14,5 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | b
 RUN nvm install 14.17.3
 
 CMD cd /nodejsserver
+CMD npm install
 CMD npm run startserver
