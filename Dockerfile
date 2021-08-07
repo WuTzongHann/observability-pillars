@@ -1,25 +1,14 @@
-FROM ubuntu:20.04
+# syntax=docker/dockerfile:1
 
-COPY ./ root/docker-nodejsserver
+FROM node:14.17.3-alpine3.14
+ENV NODE_ENV=production
 
-RUN apt-get -y update
-RUN apt-get -y upgrade
-RUN apt install -y curl
-RUN apt install -y wget
-RUN apt install -y vim
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+WORKDIR /nodejsserver
 
-ENV NODE_VERSION=14.17.3
-ENV NVM_DIR=/root/.nvm
-RUN . "${NVM_DIR}/nvm.sh" && nvm install ${NODE_VERSION}
-RUN . "${NVM_DIR}/nvm.sh" && nvm use v${NODE_VERSION}
-RUN . "${NVM_DIR}/nvm.sh" && nvm alias default v${NODE_VERSION}
+COPY ["./nodejsserver/package*.json", "."]
 
-ENV NODE_PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/lib/node_modules
-ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:${PATH}
+RUN npm install --production
 
-WORKDIR /root/docker-nodejsserver/nodejsserver
-RUN npm install
+COPY ["./nodejsserver", "."]
 
-EXPOSE 8080 8081
-ENTRYPOINT ["npm", "run", "startserver"]
+CMD [ "npm", "run", "startserver" ]
