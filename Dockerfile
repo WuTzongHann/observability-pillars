@@ -11,4 +11,4 @@ RUN npm install --production
 
 COPY ["./nodejsserver", "."]
 
-CMD [ "npm", "run", "startserver" ]
+ENTRYPOINT [ "npm", "run", "startserver" ]
