@@ -3,12 +3,12 @@
 FROM node:14.17.3-alpine3.14
 ENV NODE_ENV=production
 
-WORKDIR /nodejsserver
+WORKDIR /app
 
-COPY ["./nodejsserver/package*.json", "."]
+COPY ["./package*.json", "/app"]
 
 RUN npm install --production
 
-COPY ["./nodejsserver", "."]
+COPY [".", "/app"]
 
 ENTRYPOINT [ "npm", "run", "startserver" ]
