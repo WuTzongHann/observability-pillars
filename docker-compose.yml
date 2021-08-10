@@ -15,8 +15,8 @@ services:
     ports:
       - 9090:9090
     links:
-      - nodejsserver
-  nodejsserver:
+      - node
+  node:
     build: ./nodejsserver
     volumes:
       - ./nodejsserver:/app
