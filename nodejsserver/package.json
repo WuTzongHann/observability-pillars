@@ -9,7 +9,9 @@
     "express": "^4.17.1",
     "prom-client": "^13.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "startserver": "node server.js",
