@@ -5,9 +5,6 @@ const notAllowedMethod = (req, res) => {
   res.status(405).send()
 }
 const router = express.Router()
-router.all((req, res) => {
-  res.status(405).send()
-})
 router.route('/')
   .get(defaultController.sayHelloWorld)
   .all(notAllowedMethod)
