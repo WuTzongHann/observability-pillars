@@ -1,12 +1,12 @@
 import express from 'express'
-import healthController from '../controllers/health.js'
+import testController from '../controllers/test.js'
 
 const notAllowedMethod = (req, res) => {
   res.status(405).send()
 }
 const router = express.Router()
 router.route('/')
-  .get(healthController.responseHealth)
+  .get(testController.responseHello)
   .all(notAllowedMethod)
 
 export default router

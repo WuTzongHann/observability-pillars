@@ -4,7 +4,7 @@ import grpc from '@grpc/grpc-js'
 import protoLoader from '@grpc/proto-loader'
 
 import defaultRouter from './routes/default.js'
-import healthRouter from './routes/health.js'
+import testRouter from './routes/test.js'
 import pingServices from './grpc/services/ping.js'
 
 const HTTP_PORT = 8080
@@ -86,7 +86,10 @@ const main = () => {
     res.send(await client.register.metrics())
   })
   httpServer.use('/', defaultRouter)
-  httpServer.use('/health', healthRouter)
+  httpServer.use('/test', testRouter)
+  httpServer.use(function (req, res, next) {
+    res.status(404).send('Sorry cant find that!')
+  })
   httpServer.listen(HTTP_PORT, () => {
     console.log(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
   })
