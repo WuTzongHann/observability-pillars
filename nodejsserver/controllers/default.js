@@ -8,10 +8,18 @@ const responseHealth = (req, res) => {
   res.json(response)
 }
 const echoYourRequest = (req, res) => {
-  const response = req.body
-  const time = new Date()
-  response.timestr = time
-  response.timestamp = time.getTime()
-  res.status(200).json(response)
+  if (req.headers['content-type'] !== 'application/json') {
+    res.status(400).send('content-type only accept "application/json"')
+  } else {
+    if (req.body.message_id === undefined || req.body.message_body === undefined) {
+      res.status(500).send('provided data have undefined property')
+    } else {
+      const response = req.body
+      const time = new Date()
+      response.timestr = time
+      response.timestamp = time.getTime()
+      res.status(200).json(response)
+    }
+  }
 }
 export default { sayHelloWorld, responseHealth, echoYourRequest }
