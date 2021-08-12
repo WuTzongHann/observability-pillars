@@ -79,6 +79,11 @@ const httpMetricsMiddleware = function (req, res, next) {
 const main = () => {
   collectDefaultMetrics() // Default metrics are collected on scrape of metrics endpoint
   const httpServer = express()
+  httpServer.use((req, res, next) => {
+    if (!req.is('application/json')) {
+      res.status(415).send('content-type only accept "application/json"')
+    }
+  })
   httpServer.use(express.json())
   httpServer.use(httpMetricsMiddleware)
   httpServer.get('/metrics', async (req, res) => {
@@ -88,7 +93,7 @@ const main = () => {
   httpServer.use('/', defaultRouter)
   httpServer.use('/test', testRouter)
   httpServer.use(function (req, res, next) {
-    res.status(404).send('Sorry cant find that!')
+    res.status(404).send('Sorry can\'t find that!')
   })
   httpServer.listen(HTTP_PORT, () => {
     console.log(`HTTP Server listening at http://localhost:${HTTP_PORT}`)

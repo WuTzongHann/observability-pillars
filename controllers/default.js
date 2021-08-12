@@ -9,7 +9,7 @@ const responseHealth = (req, res) => {
 }
 const echoYourRequest = (req, res) => {
   if (req.headers['content-type'] !== 'application/json') {
-    res.status(400).send('content-type only accept "application/json"')
+    res.status(415).send('content-type only accept "application/json"')
   } else {
     if (req.body.message_id === undefined || req.body.message_body === undefined) {
       res.status(500).send('provided data have undefined property')
