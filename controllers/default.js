@@ -18,5 +18,7 @@ const echoYourRequest = (req, res) => {
   response.timestamp = time.getTime()
   res.status(200).json(response)
 }
-
-export default { sayHelloWorld, responseHealth, echoYourRequest }
+const responseError = (req, res) => {
+  throw new Error('I am error!')
+}
+export default { sayHelloWorld, responseHealth, echoYourRequest, responseError }

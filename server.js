@@ -56,6 +56,7 @@ const httpMetricsMiddleware = function (req, res, next) {
   })
   const start = new Date()
   next()
+  console.log(res.statusCode)
   const duration = new Date() - start
   const statusCode = res.statusCode
   const sizeBytes = new Int8Array(res.arrayBuffer).length
@@ -74,6 +75,11 @@ const httpMetricsMiddleware = function (req, res, next) {
   httpRequestsInflight.inc({
     urlPath: urlPath
   }, -1)
+}
+
+const errorHandler = (err, req, res, next) => {
+  res.status(500)
+  res.render('error', { error: err })
 }
 
 const main = () => {
@@ -95,6 +101,7 @@ const main = () => {
   httpServer.use(function (req, res, next) {
     res.status(404).send('Sorry can\'t find that!')
   })
+  httpServer.use(errorHandler)
   httpServer.listen(HTTP_PORT, () => {
     console.log(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
   })
