@@ -48,6 +48,14 @@ const loadProtoDescriptor = protoPath => {
   return protoDescriptor
 }
 
+// workaround solution for silence reject
+// ref: https://stackoverflow.com/questions/51391080/handling-errors-in-express-async-middleware
+const asyncHandler = fn => (req, res, next) => {
+  return Promise
+    .resolve(fn(req, res, next))
+    .catch(next)
+}
+
 // HTTPMetricsMiddleware measures the server-side stats, like latencies and respond status, and group by the method calls.
 const httpMetricsMiddleware = function (req, res, next) {
   const urlPath = req.originalUrl
@@ -92,10 +100,10 @@ const main = () => {
   })
   httpServer.use(express.json())
   httpServer.use(httpMetricsMiddleware)
-  httpServer.get('/metrics', async (req, res) => {
+  httpServer.get('/metrics', asyncHandler(async (req, res, next) => {
     res.set('Content-Type', client.register.contentType)
     res.send(await client.register.metrics())
-  })
+  }))
   httpServer.use('/', defaultRouter)
   httpServer.use('/test', testRouter)
   httpServer.use(function (req, res, next) {
