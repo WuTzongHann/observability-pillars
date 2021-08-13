@@ -7,6 +7,8 @@ import defaultRouter from './routes/default.js'
 import testRouter from './routes/test.js'
 import pingServices from './grpc/services/ping.js'
 
+import responseTime from 'response-time'
+
 const HTTP_PORT = 8080
 const GRPC_PORT = 8081
 const PingProtoPath = './grpc/protos/ping.proto'
@@ -56,16 +58,13 @@ const asyncHandler = fn => (req, res, next) => {
     .catch(next)
 }
 
-// HTTPMetricsMiddleware measures the server-side stats, like latencies and respond status, and group by the method calls.
-const httpMetricsMiddleware = function (req, res, next) {
+// httpMetricsRecorder measures the server-side stats, like latencies and respond status, and group by the method calls.
+const httpMetricsRecorder = function (req, res, time) {
   const urlPath = req.originalUrl
   httpRequestsInflight.inc({
     urlPath: urlPath
   })
-  const start = new Date()
-  next()
-  console.log(res.statusCode)
-  const duration = new Date() - start
+  console.log('time', time)
   const statusCode = res.statusCode
   const sizeBytes = new Int8Array(res.arrayBuffer).length
   httpRequestTotalCounter.inc({
@@ -75,7 +74,7 @@ const httpMetricsMiddleware = function (req, res, next) {
   httpRequestDurationHist.observe({
     urlPath: urlPath,
     statusCode: statusCode
-  }, duration)
+  }, time)
   httpResponseSizeHistogram.observe({
     urlPath: urlPath,
     statusCode: statusCode
@@ -86,27 +85,28 @@ const httpMetricsMiddleware = function (req, res, next) {
 }
 
 const errorHandler = (err, req, res, next) => {
-  res.status(500)
-  res.render('error', { error: err })
+  res.status((err.statusCode === undefined) ? 500 : err.statusCode).json({ error: err })
 }
 
 const main = () => {
   collectDefaultMetrics() // Default metrics are collected on scrape of metrics endpoint
   const httpServer = express()
+  httpServer.use(responseTime(httpMetricsRecorder))
   httpServer.use((req, res, next) => {
     if (!req.is('application/json')) {
-      res.status(415).send('content-type only accept "application/json"')
+      res.status(415).send('Your content-type is not "application/json" or You did not provide any data.')
+      return
     }
+    next()
   })
   httpServer.use(express.json())
-  httpServer.use(httpMetricsMiddleware)
   httpServer.get('/metrics', asyncHandler(async (req, res, next) => {
     res.set('Content-Type', client.register.contentType)
     res.send(await client.register.metrics())
   }))
   httpServer.use('/', defaultRouter)
   httpServer.use('/test', testRouter)
-  httpServer.use(function (req, res, next) {
+  httpServer.use((req, res) => {
     res.status(404).send('Sorry can\'t find that!')
   })
   httpServer.use(errorHandler)

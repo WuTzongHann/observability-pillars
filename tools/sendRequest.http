@@ -1,0 +1,13 @@
+@host = localhost
+@port = 8080
+@contentType = application/json
+
+# GET http://{{host}}:{{port}}/health
+
+GET http://localhost:8080/async HTTP/1.1
+content-type:{{contentType}}
+
+{
+    "message_id": "qwert",
+    "message_body": "hello ping service"
+}
