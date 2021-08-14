@@ -3,8 +3,8 @@ import client from 'prom-client'
 import grpc from '@grpc/grpc-js'
 import protoLoader from '@grpc/proto-loader'
 
-import defaultRouter from './routes/default.js'
-import testRouter from './routes/test.js'
+import defaultRouter from './http/routes/default.js'
+import testRouter from './http/routes/test.js'
 import pingServices from './grpc/services/ping.js'
 
 import responseTime from 'response-time'

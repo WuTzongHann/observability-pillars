@@ -14,7 +14,7 @@ const echoYourRequest = (req, res) => {
 const responseError = (req, res) => {
   console.log('errorEndpoint')
   throw new Error('I am error!')
-  res.status(500).json('error occurred')
+  // res.status(500).json('error occurred')
 }
 const waitMilliSeconds = (ms) => {
   const start = new Date().getTime()
@@ -27,7 +27,7 @@ const responseAsync = async (req, res) => {
   console.log('asyncEndpoint Start Timing')
   await waitMilliSeconds(3000)
   console.log('asyncEndpoint Time\'s up')
-  throw new Error('I am error!')
+  // throw new Error('I am error!')
   res.status(200).json('async completed')
 }
 export default { sayHelloWorld, responseHealth, echoYourRequest, responseError, responseAsync }
