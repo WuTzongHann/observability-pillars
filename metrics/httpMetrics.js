@@ -31,7 +31,7 @@ const httpMetricsRecorder = (req, res, time) => {
   httpRequestsInflight.inc({
     urlPath, method
   })
-  const duration = time
+  const duration = time / 1000
   const statusCode = res.statusCode
   const sizeBytes = new Int8Array(res.arrayBuffer).length
   httpRequestTotalCounter.inc({

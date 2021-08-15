@@ -33,9 +33,12 @@ const main = async () => {
     console.log(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
   })
 
+  
+
   const gRPCServer = new Mali(PROTO_PATH)
   gRPCServer.use(grpcMetricsInterceptor)
   gRPCServer.use({ echo, testing })
+  // gRPCServer.on('error', grpcErrorHandler)
   await gRPCServer.start(`0.0.0.0:${GRPC_PORT}`)
   console.log(`gRPC Server listening at http://localhost:${GRPC_PORT}`)
 }

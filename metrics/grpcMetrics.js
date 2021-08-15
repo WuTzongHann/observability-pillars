@@ -1,4 +1,8 @@
 import prometheus from 'prom-client'
+import {
+  status,
+  statusesByCodes
+} from '../grpc/services/ping.js'
 
 const grpcRequestTotalCounter = new prometheus.Counter({
   name: 'grpc_requests_total',
@@ -23,15 +27,30 @@ const grpcRequestsInflight = new prometheus.Gauge({
   labelNames: ['service', 'method']
 })
 
+const grpcErrorHandler = (err, ctx) => {
+  if (err.code === undefined) {
+    err.code = statusesByCodes.get(status.INTERNAL)
+  }
+  ctx.setStatus({
+    statusCode: err.code,
+    statusDescription: statusesByCodes.get(err.code)
+  })
+  ctx.res = err
+}
+
 const grpcMetricsInterceptor = async (ctx, next) => {
-  const service = ctx.service
-  const method = ctx.name
+  const { service, name: method } = ctx
   grpcRequestsInflight.inc({
     service, method
   })
   const start = new Date().getTime()
-  await next()
-  const duration = new Date().getTime() - start
+  try {
+    await next()
+  } catch (err) {
+    grpcErrorHandler(err, ctx)
+  }
+  console.log(ctx)
+  const duration = (new Date().getTime() - start) / 1000
   const statusCode = ctx.response.status.statusCode
   const sizeBytes = new Int8Array(ctx.res.arrayBuffer).length
   grpcRequestTotalCounter.inc({
