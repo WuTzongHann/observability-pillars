@@ -26,16 +26,26 @@ const grpcRequestsInflight = new prometheus.Gauge({
 const grpcMetricsInterceptor = (ctx, next) => {
   const service = ctx.service
   const method = ctx.name
-  grpcRequestsInflight.inc({ service, method })
+  grpcRequestsInflight.inc({
+    service, method
+  })
   const start = new Date().getTime()
   next()
   const duration = new Date().getTime() - start
   const statusCode = ctx.response.status.statusCode
   const sizeBytes = new Int8Array(ctx.res.arrayBuffer).length
-  grpcRequestTotalCounter.inc({ service, method, statusCode })
-  grpcRequestDurationHist.observe({ service, method, statusCode }, duration)
-  grpcResponseSizeHistogram.observe({ service, method, statusCode }, sizeBytes)
-  grpcRequestsInflight.inc({ service, method }, -1)
+  grpcRequestTotalCounter.inc({
+    service, method, statusCode
+  })
+  grpcRequestDurationHist.observe({
+    service, method, statusCode
+  }, duration)
+  grpcResponseSizeHistogram.observe({
+    service, method, statusCode
+  }, sizeBytes)
+  grpcRequestsInflight.inc({
+    service, method
+  }, -1)
 }
 
 export default grpcMetricsInterceptor

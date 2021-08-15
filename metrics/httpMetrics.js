@@ -28,7 +28,9 @@ const httpRequestsInflight = new prometheus.Gauge({
 const httpMetricsRecorder = (req, res, time) => {
   const urlPath = req.originalUrl
   const method = req.method
-  httpRequestsInflight.inc({ urlPath, method })
+  httpRequestsInflight.inc({
+    urlPath, method
+  })
   const duration = time
   const statusCode = res.statusCode
   const sizeBytes = new Int8Array(res.arrayBuffer).length
@@ -36,15 +38,13 @@ const httpMetricsRecorder = (req, res, time) => {
     urlPath, method, statusCode
   })
   httpRequestDurationHist.observe({
-    urlPath: urlPath,
-    statusCode: statusCode
+    urlPath, method, statusCode
   }, duration)
   httpResponseSizeHistogram.observe({
-    urlPath: urlPath,
-    statusCode: statusCode
+    urlPath, method, statusCode
   }, sizeBytes)
   httpRequestsInflight.inc({
-    urlPath: urlPath
+    urlPath, method
   }, -1)
 }
 
