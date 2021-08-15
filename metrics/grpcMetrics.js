@@ -23,14 +23,14 @@ const grpcRequestsInflight = new prometheus.Gauge({
   labelNames: ['service', 'method']
 })
 
-const grpcMetricsInterceptor = (ctx, next) => {
+const grpcMetricsInterceptor = async (ctx, next) => {
   const service = ctx.service
   const method = ctx.name
   grpcRequestsInflight.inc({
     service, method
   })
   const start = new Date().getTime()
-  next()
+  await next()
   const duration = new Date().getTime() - start
   const statusCode = ctx.response.status.statusCode
   const sizeBytes = new Int8Array(ctx.res.arrayBuffer).length

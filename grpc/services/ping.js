@@ -32,10 +32,26 @@ const echo = ctx => {
   ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
   ctx.res = response
 }
-
-const testing = ctx => {
-  ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
-  ctx.res = { message: 'Hi ' + ctx.req.name }
+const waitMilliSeconds = (ms) => {
+  const start = new Date().getTime()
+  let end = start
+  while (end < start + ms) {
+    end = new Date().getTime()
+  }
+}
+const testing = async (ctx) => {
+  await waitMilliSeconds(1000)
+  const receivedTime = new Date()
+  const response = {
+    echoRequest: {
+      messageId: ctx.req.messageId,
+      messageBody: ctx.req.messageBody
+    },
+    timestr: receivedTime,
+    timestamp: receivedTime.getTime()
+  }
+  ctx.setStatus({ statusCode: status.OUT_OF_RANGE, statusDescription: statusesByCodes.get(status.OUT_OF_RANGE) })
+  ctx.res = response
 }
 
 export default { echo, testing }
