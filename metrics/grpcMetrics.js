@@ -48,23 +48,23 @@ const grpcMetricsInterceptor = async (ctx, next) => {
     await next()
   } catch (err) {
     grpcErrorHandler(err, ctx)
+  } finally {
+    const duration = (new Date().getTime() - start) / 1000
+    const statusCode = ctx.response.status.statusCode
+    const sizeBytes = new Int8Array(ctx.res.arrayBuffer).length
+    grpcRequestTotalCounter.inc({
+      service, method, statusCode
+    })
+    grpcRequestDurationHist.observe({
+      service, method, statusCode
+    }, duration)
+    grpcResponseSizeHistogram.observe({
+      service, method, statusCode
+    }, sizeBytes)
+    grpcRequestsInflight.inc({
+      service, method
+    }, -1)
   }
-  console.log(ctx)
-  const duration = (new Date().getTime() - start) / 1000
-  const statusCode = ctx.response.status.statusCode
-  const sizeBytes = new Int8Array(ctx.res.arrayBuffer).length
-  grpcRequestTotalCounter.inc({
-    service, method, statusCode
-  })
-  grpcRequestDurationHist.observe({
-    service, method, statusCode
-  }, duration)
-  grpcResponseSizeHistogram.observe({
-    service, method, statusCode
-  }, sizeBytes)
-  grpcRequestsInflight.inc({
-    service, method
-  }, -1)
 }
 
 export default grpcMetricsInterceptor

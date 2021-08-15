@@ -17,10 +17,11 @@ function sendRequest () {
   const client = new protoDescriptor.Ping(target, grpc.credentials.createInsecure())
 
   client.Echo({ message_id: 'qwert', message_body: 'hello ping service' }, function (err, response) {
-    if (err) {
-      console.log(err)
-      return
-    }
+    // if (err) {
+    //   console.log(err)
+    //   return
+    // }
+    console.log(err)
     console.log(response)
   })
 }
