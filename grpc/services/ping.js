@@ -60,7 +60,7 @@ const testing = async (ctx) => {
     timestr: receivedTime,
     timestamp: receivedTime.getTime()
   }
-  ctx.setStatus({ statusCode: status.OUT_OF_RANGE, statusDescription: statusesByCodes.get(status.OUT_OF_RANGE) })
+  ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
   ctx.res = response
 }
 
