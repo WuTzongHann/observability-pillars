@@ -23,7 +23,7 @@ const GRPC_PORT = 8081
 const PROTO_PATH = './grpc/protos/ping.proto'
 
 const main = async () => {
-  const metricsServer = MetricsServer()
+  const metricsServer = new MetricsServer()
   metricsServer.listen(METRICS_PORT, () => {
     console.log(`Metrics Server listening at http://localhost:${METRICS_PORT}`)
   })

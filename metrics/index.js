@@ -16,17 +16,20 @@ const asyncHandler = fn => (req, res, next) => {
     .catch(next)
 }
 
-const MetricsServer = (userOptions = {}) => {
-  const options = { ...defaultOptions, ...userOptions }
-  const app = express()
-  app.get(options.metricsPath, asyncHandler(async (req, res, next) => {
-    res.set('Content-Type', prometheus.register.contentType)
-    res.send(await prometheus.register.metrics())
-  }))
-  if (options.collectDefaultMetrics === true) {
-    prometheus.collectDefaultMetrics()
+class MetricsServer {
+  constructor
+  (userOptions = {}) {
+    const options = { ...defaultOptions, ...userOptions }
+    const app = express()
+    app.get(options.metricsPath, asyncHandler(async (req, res, next) => {
+      res.set('Content-Type', prometheus.register.contentType)
+      res.send(await prometheus.register.metrics())
+    }))
+    if (options.collectDefaultMetrics === true) {
+      prometheus.collectDefaultMetrics()
+    }
+    return app
   }
-  return app
 }
 
 export default { MetricsServer, httpMetricsMiddleware, grpcMetricsInterceptor }
