@@ -29,7 +29,7 @@ const main = async () => {
   })
 
   const httpServer = express()
-  httpServer.use(httpMetricsMiddleware())
+  httpServer.use(httpMetricsMiddleware)
   httpServer.use(unsupportedMediaTypeHandler)
   httpServer.use(express.json())
   httpServer.use(defaultRouter)
