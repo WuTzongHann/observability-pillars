@@ -1,8 +1,5 @@
 import prometheus from 'prom-client'
-import {
-  status,
-  statusesByCodes
-} from '../grpc/services/ping.js'
+import { status, statusesByCodes } from '../utility.js'
 
 const grpcRequestTotalCounter = new prometheus.Counter({
   name: 'grpc_requests_total',
