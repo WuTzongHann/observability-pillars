@@ -48,25 +48,11 @@ const httpMetricsRecorder = (req, res, time) => {
   }, -1)
 }
 
-// workaround solution for silence reject
-// ref: https://stackoverflow.com/questions/51391080/handling-errors-in-express-async-middleware
-const asyncHandler = fn => (req, res, next) => {
-  return Promise
-    .resolve(fn(req, res, next))
-    .catch(next)
-}
-
 const httpMetricsMiddleware = () => {
   const app = express()
   app.use(responseTime(httpMetricsRecorder))
-
-  app.get('/metrics', asyncHandler(async (req, res, next) => {
-    res.set('Content-Type', prometheus.register.contentType)
-    return res.send(await prometheus.register.metrics())
-  }))
 
   return app
 }
 
 export default httpMetricsMiddleware
-export { httpMetricsMiddleware }

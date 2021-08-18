@@ -68,4 +68,3 @@ const grpcMetricsInterceptor = async (ctx, next) => {
 }
 
 export default grpcMetricsInterceptor
-export { grpcMetricsInterceptor }

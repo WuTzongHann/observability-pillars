@@ -1,8 +1,33 @@
+import express from 'express'
+import prometheus from 'prom-client'
 import httpMetricsMiddleware from './httpMetrics.js'
 import grpcMetricsInterceptor from './grpcMetrics.js'
 
-import prometheus from 'prom-client'
-prometheus.collectDefaultMetrics()
+const defaultOptions = {
+  metricsPath: '/metrics',
+  collectDefaultMetrics: true
+}
 
-export default { httpMetricsMiddleware, grpcMetricsInterceptor }
-export { httpMetricsMiddleware, grpcMetricsInterceptor }
+// workaround solution for silence reject
+// ref: https://stackoverflow.com/questions/51391080/handling-errors-in-express-async-middleware
+const asyncHandler = fn => (req, res, next) => {
+  return Promise
+    .resolve(fn(req, res, next))
+    .catch(next)
+}
+
+const MetricsServer = (userOptions = {}) => {
+  const options = { ...defaultOptions, ...userOptions }
+  const app = express()
+  app.get(options.metricsPath, asyncHandler(async (req, res, next) => {
+    res.set('Content-Type', prometheus.register.contentType)
+    res.send(await prometheus.register.metrics())
+  }))
+  if (options.collectDefaultMetrics === true) {
+    prometheus.collectDefaultMetrics()
+  }
+  return app
+}
+
+export default { MetricsServer, httpMetricsMiddleware, grpcMetricsInterceptor }
+export { MetricsServer, httpMetricsMiddleware, grpcMetricsInterceptor }

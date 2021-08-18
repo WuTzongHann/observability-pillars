@@ -3,6 +3,7 @@ import Mali from 'mali'
 import defaultRouter from './http/routes/default.js'
 import patientsRouter from './http/routes/patients.js'
 import {
+  MetricsServer,
   httpMetricsMiddleware,
   grpcMetricsInterceptor
 } from './metrics/index.js'
@@ -16,11 +17,17 @@ import {
   testing
 } from './grpc/services/ping.js'
 
+const METRICS_PORT = 9090
 const HTTP_PORT = 8080
 const GRPC_PORT = 8081
 const PROTO_PATH = './grpc/protos/ping.proto'
 
 const main = async () => {
+  const metricsServer = MetricsServer()
+  metricsServer.listen(METRICS_PORT, () => {
+    console.log(`Metrics Server listening at http://localhost:${METRICS_PORT}`)
+  })
+
   const httpServer = express()
   httpServer.use(httpMetricsMiddleware())
   httpServer.use(unsupportedMediaTypeHandler)
