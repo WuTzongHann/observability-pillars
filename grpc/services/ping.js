@@ -27,8 +27,6 @@ const throwError = (statusCode) => {
 }
 
 const echo = (ctx) => {
-  throwError(status.UNIMPLEMENTED)
-
   const receivedTime = new Date()
   const response = {
     echoRequest: {
@@ -50,7 +48,6 @@ const waitMilliSeconds = (ms) => {
 }
 const testing = async (ctx) => {
   await waitMilliSeconds(1000)
-  throwError(status.DATA_LOSS)
   const receivedTime = new Date()
   const response = {
     echoRequest: {
