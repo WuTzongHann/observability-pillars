@@ -1,4 +1,3 @@
-import express from 'express'
 import prometheus from 'prom-client'
 import responseTime from 'response-time'
 
@@ -25,7 +24,7 @@ const httpRequestsInflight = new prometheus.Gauge({
   labelNames: ['urlPath', 'method']
 })
 
-const httpMetricsRecorder = (req, res, time) => {
+const httpMetricsMiddleware = responseTime((req, res, time) => {
   const urlPath = req.originalUrl
   const method = req.method
   httpRequestsInflight.inc({
@@ -46,13 +45,6 @@ const httpMetricsRecorder = (req, res, time) => {
   httpRequestsInflight.inc({
     urlPath, method
   }, -1)
-}
-
-const httpMetricsMiddleware = () => {
-  const app = express()
-  app.use(responseTime(httpMetricsRecorder))
-
-  return app
-}
+})
 
 export default httpMetricsMiddleware
