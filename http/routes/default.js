@@ -1,6 +1,6 @@
 import express from 'express'
 import defaultController from '../controllers/default.js'
-import { jsonLogger } from '../../logs/index.js'
+import jsonLogger from '../../logs/index.js'
 
 const notAllowedMethod = (req, res) => {
   res.status(405).send()

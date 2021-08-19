@@ -2,7 +2,7 @@ import express from 'express'
 import prometheus from 'prom-client'
 import httpMetricsMiddleware from './httpMetrics.js'
 import grpcMetricsInterceptor from './grpcMetrics.js'
-import { jsonLogger } from '../logs/index.js'
+import jsonLogger from '../logs/index.js'
 
 const defaultOptions = {
   METRICS_PORT: 9090,

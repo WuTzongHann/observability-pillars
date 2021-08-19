@@ -1,4 +1,4 @@
-import { jsonLogger } from '../../logs/index.js'
+import jsonLogger from '../../logs/index.js'
 
 const responseHello = (req, res) => {
   res.send('Hello patients!')

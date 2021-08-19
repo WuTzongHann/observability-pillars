@@ -1,5 +1,5 @@
 import { status, statusesByCodes } from '../../utility.js'
-import { jsonLogger } from '../../logs/index.js'
+import jsonLogger from '../../logs/index.js'
 
 const echo = (ctx) => {
   const receivedTime = new Date()

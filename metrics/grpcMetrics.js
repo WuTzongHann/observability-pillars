@@ -1,6 +1,6 @@
 import prometheus from 'prom-client'
 import { status, statusesByCodes } from '../utility.js'
-import { jsonLogger } from '../logs/index.js'
+import jsonLogger from '../logs/index.js'
 
 const grpcRequestTotalCounter = new prometheus.Counter({
   name: 'grpc_requests_total',

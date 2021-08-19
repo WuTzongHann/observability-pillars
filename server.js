@@ -13,7 +13,7 @@ import {
   testing
 } from './grpc/services/ping.js'
 
-import { jsonLogger } from './logs/index.js'
+import jsonLogger from './logs/index.js'
 
 const HTTP_PORT = 8080
 const GRPC_PORT = 8081

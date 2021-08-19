@@ -1,4 +1,4 @@
-import { jsonLogger } from '../../logs/index.js'
+import jsonLogger from '../../logs/index.js'
 
 const unsupportedMediaTypeHandler = (req, res, next) => {
   if (!req.is('application/json')) {
