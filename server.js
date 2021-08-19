@@ -17,16 +17,14 @@ import {
   testing
 } from './grpc/services/ping.js'
 
-const METRICS_PORT = 9090
+import { jsonLogger } from './logs/index.js'
+
 const HTTP_PORT = 8080
 const GRPC_PORT = 8081
 const PROTO_PATH = './grpc/protos/ping.proto'
 
 const main = async () => {
   const metricsServer = new MetricsServer()
-  metricsServer.listen(METRICS_PORT, () => {
-    console.log(`Metrics Server listening at http://localhost:${METRICS_PORT}`)
-  })
 
   const httpServer = express()
   httpServer.use(httpMetricsMiddleware)
@@ -37,14 +35,14 @@ const main = async () => {
   httpServer.use(notFoundHandler)
   httpServer.use(errorHandler)
   httpServer.listen(HTTP_PORT, () => {
-    console.log(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
+    jsonLogger.info(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
   })
 
   const gRPCServer = new Mali(PROTO_PATH)
   gRPCServer.use(grpcMetricsInterceptor)
   gRPCServer.use({ echo, testing })
   await gRPCServer.start(`0.0.0.0:${GRPC_PORT}`)
-  console.log(`gRPC Server listening at http://localhost:${GRPC_PORT}`)
+  jsonLogger.info(`gRPC Server listening at http://localhost:${GRPC_PORT}`)
 }
 
 main()

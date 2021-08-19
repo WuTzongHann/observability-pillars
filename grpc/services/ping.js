@@ -1,4 +1,5 @@
 import { status, statusesByCodes } from '../../utility.js'
+import { jsonLogger } from '../../logs/index.js'
 
 const throwError = (statusCode) => {
   const err = new Error()
@@ -19,6 +20,8 @@ const echo = (ctx) => {
   }
   ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
   ctx.res = response
+  const { service, name: method } = ctx
+  jsonLogger.info('User Visited', { service, method, statusCode: ctx.response.status.statusCode })
 }
 const waitMilliSeconds = (ms) => {
   const start = new Date().getTime()
@@ -40,6 +43,8 @@ const testing = async (ctx) => {
   }
   ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
   ctx.res = response
+  const { service, name: method } = ctx
+  jsonLogger.info('User Visited', { service, method, statusCode: ctx.response.status.statusCode })
 }
 
 export default { echo, testing }

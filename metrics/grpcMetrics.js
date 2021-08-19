@@ -1,5 +1,6 @@
 import prometheus from 'prom-client'
 import { status, statusesByCodes } from '../utility.js'
+import { jsonLogger } from '../logs/index.js'
 
 const grpcRequestTotalCounter = new prometheus.Counter({
   name: 'grpc_requests_total',
@@ -25,14 +26,15 @@ const grpcRequestsInflight = new prometheus.Gauge({
 })
 
 const grpcErrorHandler = (err, ctx) => {
-  if (err.code === undefined) {
-    err.code = statusesByCodes.get(status.INTERNAL)
-  }
+  err.code = (err.code === undefined) ? status.INTERNAL : err.code
+  err.message = (err.message === undefined) ? statusesByCodes.get(err.code) : err.message
   ctx.setStatus({
     statusCode: err.code,
     statusDescription: statusesByCodes.get(err.code)
   })
   ctx.res = err
+  const { service, name: method } = ctx
+  jsonLogger.error(err.message, { service, method, statusCode: err.code })
 }
 
 const grpcMetricsInterceptor = async (ctx, next) => {

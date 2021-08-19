@@ -2,8 +2,10 @@ import express from 'express'
 import prometheus from 'prom-client'
 import httpMetricsMiddleware from './httpMetrics.js'
 import grpcMetricsInterceptor from './grpcMetrics.js'
+import { jsonLogger } from '../logs/index.js'
 
 const defaultOptions = {
+  METRICS_PORT: 9090,
   metricsPath: '/metrics',
   collectDefaultMetrics: true
 }
@@ -24,7 +26,12 @@ class MetricsServer {
     app.get(options.metricsPath, asyncHandler(async (req, res, next) => {
       res.set('Content-Type', prometheus.register.contentType)
       res.send(await prometheus.register.metrics())
+      const { originalUrl: urlPath, method } = req
+      jsonLogger.info('User Visited', { exportToPrometheus: false, urlPath, method, statusCode: res.statusCode })
     }))
+    app.listen(options.METRICS_PORT, () => {
+      jsonLogger.info(`Metrics Server listening at http://localhost:${options.METRICS_PORT}`)
+    })
     if (options.collectDefaultMetrics === true) {
       prometheus.collectDefaultMetrics()
     }
@@ -32,5 +39,4 @@ class MetricsServer {
   }
 }
 
-export default { MetricsServer, httpMetricsMiddleware, grpcMetricsInterceptor }
 export { MetricsServer, httpMetricsMiddleware, grpcMetricsInterceptor }

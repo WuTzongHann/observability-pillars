@@ -25,8 +25,7 @@ const httpRequestsInflight = new prometheus.Gauge({
 })
 
 const httpMetricsMiddleware = responseTime((req, res, time) => {
-  const urlPath = req.originalUrl
-  const method = req.method
+  const { originalUrl: urlPath, method } = req
   httpRequestsInflight.inc({
     urlPath, method
   })

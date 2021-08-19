@@ -6,6 +6,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.3.7",
     "@grpc/proto-loader": "^0.6.4",
+    "@matsumana/winston-transport-prometheus": "^1.0.2",
     "express": "^4.17.1",
     "mali": "^0.44.3",
     "prom-client": "^13.2.0",
@@ -20,7 +21,7 @@
     "startserver": "node server.js",
     "testhttphelloworld": "curl --request GET -i --url http://localhost:8080/ --header 'content-type: application/json' --data '{}'",
     "testhttphealth": "curl --request GET -i --url http://localhost:8080/health/ --header 'content-type: application/json' --data '{}'",
-    "testhttpecho": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service\"}'",
+    "testhttpecho": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service}'",
     "testgrpcecho": "cd tools && node ping-echo.js",
     "testgrpctesting": "cd tools && node ping-testing.js"
   },
