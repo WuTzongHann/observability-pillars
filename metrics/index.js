@@ -7,7 +7,9 @@ import { jsonLogger } from '../logs/index.js'
 const defaultOptions = {
   METRICS_PORT: 9090,
   metricsPath: '/metrics',
-  collectDefaultMetrics: true
+  collectDefaultMetrics: true,
+  httpMetricsMiddleware,
+  grpcMetricsInterceptor
 }
 
 // workaround solution for silence reject
@@ -18,9 +20,8 @@ const asyncHandler = fn => (req, res, next) => {
     .catch(next)
 }
 
-class MetricsServer {
-  constructor
-  (userOptions = {}) {
+class Metrics {
+  constructor (userOptions = {}) {
     const options = { ...defaultOptions, ...userOptions }
     const app = express()
     app.get(options.metricsPath, asyncHandler(async (req, res, next) => {
@@ -35,8 +36,18 @@ class MetricsServer {
     if (options.collectDefaultMetrics === true) {
       prometheus.collectDefaultMetrics()
     }
-    return app
+    this.httpMetricsMiddleware = options.httpMetricsMiddleware
+    this.grpcMetricsInterceptor = options.grpcMetricsInterceptor
+  }
+
+  get httpMiddleware () {
+    return this.httpMetricsMiddleware
+  }
+
+  get grpcInterceptor () {
+    return this.grpcMetricsInterceptor
   }
 }
 
-export { MetricsServer, httpMetricsMiddleware, grpcMetricsInterceptor }
+export default Metrics
+export { httpMetricsMiddleware, grpcMetricsInterceptor }

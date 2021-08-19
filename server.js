@@ -2,11 +2,7 @@ import express from 'express'
 import Mali from 'mali'
 import defaultRouter from './http/routes/default.js'
 import patientsRouter from './http/routes/patients.js'
-import {
-  MetricsServer,
-  httpMetricsMiddleware,
-  grpcMetricsInterceptor
-} from './metrics/index.js'
+import Metrics from './metrics/index.js'
 import {
   unsupportedMediaTypeHandler,
   notFoundHandler,
@@ -24,10 +20,10 @@ const GRPC_PORT = 8081
 const PROTO_PATH = './grpc/protos/ping.proto'
 
 const main = async () => {
-  const metricsServer = new MetricsServer()
+  const metrics = new Metrics()
 
   const httpServer = express()
-  httpServer.use(httpMetricsMiddleware)
+  httpServer.use(metrics.httpMiddleware)
   httpServer.use(unsupportedMediaTypeHandler)
   httpServer.use(express.json())
   httpServer.use(defaultRouter)
@@ -39,7 +35,7 @@ const main = async () => {
   })
 
   const gRPCServer = new Mali(PROTO_PATH)
-  gRPCServer.use(grpcMetricsInterceptor)
+  gRPCServer.use(metrics.grpcInterceptor)
   gRPCServer.use({ echo, testing })
   await gRPCServer.start(`0.0.0.0:${GRPC_PORT}`)
   jsonLogger.info(`gRPC Server listening at http://localhost:${GRPC_PORT}`)
