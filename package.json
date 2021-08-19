@@ -20,8 +20,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "startserver": "node server.js",
     "testhttphelloworld": "curl --request GET -i --url http://localhost:8080/ --header 'content-type: application/json' --data '{}'",
-    "testhttphealth": "curl --request GET -i --url http://localhost:8080/health/ --header 'content-type: application/json' --data '{}'",
-    "testhttpecho": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service}'",
+    "testhttphealth": "curl --request GET -i --url http://localhost:8080/health --header 'content-type: application/json' --data '{}'",
+    "testhttpecho": "curl --request POST -i --url http://localhost:8080/echo --header 'content-type: application/json' --data '{\"message_id\": \"qwert\",\"message_body\": \"hello ping service\"}'",
     "testgrpcecho": "cd tools && node ping-echo.js",
     "testgrpctesting": "cd tools && node ping-testing.js"
   },
