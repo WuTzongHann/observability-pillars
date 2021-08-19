@@ -1,13 +1,6 @@
 import { status, statusesByCodes } from '../../utility.js'
 import { jsonLogger } from '../../logs/index.js'
 
-const throwError = (statusCode) => {
-  const err = new Error()
-  err.code = statusCode
-  err.message = statusesByCodes.get(statusCode)
-  throw err
-}
-
 const echo = (ctx) => {
   const receivedTime = new Date()
   const response = {
