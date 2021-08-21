@@ -42,6 +42,8 @@ const grpcMetricsInterceptor = async (ctx, next) => {
   grpcRequestsInflight.inc({
     service, method
   })
+  // check this: https://stackoverflow.com/a/14551263/8694937
+  // maybe use process.hrtime() would more like a pro
   const start = new Date().getTime()
   try {
     await next()
