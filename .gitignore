@@ -3,6 +3,6 @@ node_modules/
 
 **/*.log
 
-./.dockerignore
+.dockerignore
 
-./Dockerfile
+Dockerfile
