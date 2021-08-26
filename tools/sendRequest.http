@@ -1,11 +1,11 @@
 @host = localhost
-@port = 8080
-@contentType = application/json
 
-# GET http://{{host}}:{{port}}/health
-
-GET http://localhost:9090/metrics HTTP/1.1
-content-type:{{contentType}}
+GET http://{{host}}:8080/health HTTP/1.1
+content-type: application/json
+x-request-id: exampleXRequestId
+x-b3-traceid: exampleXB3TraceId
+x-b3-spanid: exampleXB3SpanId
+x-b3-parentspanid: exampleXB3ParentId
 
 {
     "message_id": "qwert",
