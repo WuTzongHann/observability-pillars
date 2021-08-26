@@ -21,16 +21,10 @@ class Logger {
       format: combine(timestamp(), myFormat),
       defaultMeta: options.defaultMeta,
       transports: [
-        new winston.transports.File({ filename: 'logs/info.log' }),
-        new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'logs/warn.log', level: 'warn' }),
+        new winston.transports.Console(),
         new PrometheusTransport()
       ]
     })
-
-    if (process.env.NODE_ENV !== 'production') {
-      this.jsonLogger.add(new winston.transports.Console())
-    }
 
     // ref: https://gist.github.com/ludwig/b47b5de4a4c53235825af3b4cef4869a
     // this allows winston to handle output from express' morgan middleware
@@ -78,11 +72,6 @@ function formatLogArguments (args) {
     // get file path relative to project root
     const calleeStr = '(' + stackInfo.relativePath + ':' + stackInfo.line + ')'
 
-    /* if (typeof (args[0]) === 'string') {
-      args[0] = calleeStr + ' ' + args[0]
-    } else {
-      args.unshift(calleeStr)
-    } */
     switch (typeof args[1]) {
       case 'function':
         args.splice(1, 0, { caller: calleeStr })
