@@ -3,6 +3,7 @@ import Mali from 'mali'
 import defaultRouter from './http/routes/default.js'
 import patientsRouter from './http/routes/patients.js'
 import Metrics from './metrics/index.js'
+import Logger from './logs/index.js'
 import {
   unsupportedMediaTypeHandler,
   notFoundHandler,
@@ -13,17 +14,16 @@ import {
   testing
 } from './grpc/services/ping.js'
 
-import jsonLogger from './logs/index.js'
-
 const HTTP_PORT = 8080
 const GRPC_PORT = 8081
 const PROTO_PATH = './grpc/protos/ping.proto'
 
 const main = async () => {
   const metrics = new Metrics()
+  const logger = new Logger()
 
   const httpServer = express()
-  httpServer.use(metrics.httpMiddleware)
+  httpServer.use(metrics.httpMiddleware())
   httpServer.use(unsupportedMediaTypeHandler)
   httpServer.use(express.json())
   httpServer.use(defaultRouter)
@@ -31,14 +31,14 @@ const main = async () => {
   httpServer.use(notFoundHandler)
   httpServer.use(errorHandler)
   httpServer.listen(HTTP_PORT, () => {
-    jsonLogger.info(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
+    logger.info(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
   })
 
   const gRPCServer = new Mali(PROTO_PATH)
-  gRPCServer.use(metrics.grpcInterceptor)
+  gRPCServer.use(metrics.grpcInterceptor())
   gRPCServer.use({ echo, testing })
   await gRPCServer.start(`0.0.0.0:${GRPC_PORT}`)
-  jsonLogger.info(`gRPC Server listening at http://localhost:${GRPC_PORT}`)
+  logger.info(`gRPC Server listening at http://localhost:${GRPC_PORT}`)
 }
 
 main()

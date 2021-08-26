@@ -2,12 +2,13 @@ import express from 'express'
 import prometheus from 'prom-client'
 import httpMetricsMiddleware from './httpMetrics.js'
 import grpcMetricsInterceptor from './grpcMetrics.js'
-import jsonLogger from '../logs/index.js'
+import Logger from '../logs/index.js'
 
 const defaultOptions = {
   port: 9090,
   path: '/metrics',
-  collectDefaultMetrics: true
+  collectDefaultMetrics: true,
+  logger: new Logger()
 }
 
 // workaround solution for silence reject
@@ -26,10 +27,10 @@ class Metrics {
       res.set('Content-Type', prometheus.register.contentType)
       res.send(await prometheus.register.metrics())
       const { originalUrl: urlPath, method } = req
-      jsonLogger.info('User Visited', { exportToPrometheus: false, urlPath, method, statusCode: res.statusCode })
+      options.logger.info('User Visited', { exportToPrometheus: false, urlPath, method, statusCode: res.statusCode })
     }))
     app.listen(options.port, () => {
-      jsonLogger.info(`Metrics Server listening at http://localhost:${options.port}`)
+      options.logger.info(`Metrics Server listening at http://localhost:${options.port}`)
     })
     if (options.collectDefaultMetrics === true) {
       prometheus.collectDefaultMetrics()

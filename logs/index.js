@@ -1,5 +1,5 @@
 import winston from 'winston'
-import { PrometheusTransport } from './prometheusTransport.js'
+import PrometheusTransport from './prometheusTransport.js'
 import path from 'path'
 
 const { combine, timestamp, printf } = winston.format
@@ -9,53 +9,67 @@ const myFormat = printf(info => {
   return `{"level":"${info.level}","timestamp":"${info.timestamp}","caller":"${info.caller}","message":${JSON.stringify(info.message)}}`
 })
 
-const jsonLogger = winston.createLogger({
-  level: 'info',
-  format: combine(timestamp(), myFormat),
-  transports: [
-    new winston.transports.File({ filename: 'logs/info.log' }),
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/warn.log', level: 'warn' }),
-    new PrometheusTransport()
-  ]
-})
-
-if (process.env.NODE_ENV !== 'production') {
-  jsonLogger.add(new winston.transports.Console())
+const defaultOptions = {
+  defaultMeta: {}
 }
 
-// ref: https://gist.github.com/ludwig/b47b5de4a4c53235825af3b4cef4869a
-// this allows winston to handle output from express' morgan middleware
-jsonLogger.stream = {
-  write: function (message) {
-    jsonLogger.info(message)
+class Logger {
+  constructor (userOptions = {}) {
+    const options = { ...defaultOptions, ...userOptions }
+    this.jsonLogger = winston.createLogger({
+      level: 'info',
+      format: combine(timestamp(), myFormat),
+      defaultMeta: options.defaultMeta,
+      transports: [
+        new winston.transports.File({ filename: 'logs/info.log' }),
+        new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'logs/warn.log', level: 'warn' }),
+        new PrometheusTransport()
+      ]
+    })
+
+    if (process.env.NODE_ENV !== 'production') {
+      this.jsonLogger.add(new winston.transports.Console())
+    }
+
+    // ref: https://gist.github.com/ludwig/b47b5de4a4c53235825af3b4cef4869a
+    // this allows winston to handle output from express' morgan middleware
+    this.jsonLogger.stream = {
+      write: function (message) {
+        this.jsonLogger.info(message)
+      }
+    }
+    this.stream = this.jsonLogger.stream
+  }
+
+  // A custom logger interface that wraps winston, making it easy to instrument
+  // code and still possible to replace winston in the future.
+
+  debug () {
+    this.jsonLogger.debug.apply(this.jsonLogger, formatLogArguments(arguments))
+  }
+
+  /* const log = function () {
+    jsonLogger.log.apply(jsonLogger, formatLogArguments(arguments))
+  } */
+
+  info () {
+    this.jsonLogger.info.apply(this.jsonLogger, formatLogArguments(arguments))
+  }
+
+  warn () {
+    this.jsonLogger.warn.apply(this.jsonLogger, formatLogArguments(arguments))
+  }
+
+  error () {
+    this.jsonLogger.error.apply(this.jsonLogger, formatLogArguments(arguments))
+  }
+
+  child () {
+    // return this.jsonLogger.child(arguments)
+    return new Logger({ defaultMeta: arguments })
   }
 }
-
-// A custom logger interface that wraps winston, making it easy to instrument
-// code and still possible to replace winston in the future.
-
-const debug = function () {
-  jsonLogger.debug.apply(jsonLogger, formatLogArguments(arguments))
-}
-
-/* const log = function () {
-  jsonLogger.log.apply(jsonLogger, formatLogArguments(arguments))
-} */
-
-const info = function () {
-  jsonLogger.info.apply(jsonLogger, formatLogArguments(arguments))
-}
-
-const warn = function () {
-  jsonLogger.warn.apply(jsonLogger, formatLogArguments(arguments))
-}
-
-const error = function () {
-  jsonLogger.error.apply(jsonLogger, formatLogArguments(arguments))
-}
-
-const stream = jsonLogger.stream
 
 /**
  * Attempts to add file and line number info to the given log arguments.
@@ -115,4 +129,4 @@ function getStackInfo (stackIndex) {
   }
 }
 
-export default { debug, /* log, */ info, warn, error, stream }
+export default Logger
