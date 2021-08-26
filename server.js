@@ -3,6 +3,7 @@ import Mali from 'mali'
 import defaultRouter from './http/routes/default.js'
 import patientsRouter from './http/routes/patients.js'
 import Metrics from './metrics/index.js'
+import tracing from './traces/index.js'
 import Logger from './logs/index.js'
 import {
   unsupportedMediaTypeHandler,
@@ -23,6 +24,7 @@ const main = async () => {
   const logger = new Logger()
 
   const httpServer = express()
+  httpServer.use(tracing(logger))
   httpServer.use(metrics.httpMiddleware())
   httpServer.use(unsupportedMediaTypeHandler)
   httpServer.use(express.json())
