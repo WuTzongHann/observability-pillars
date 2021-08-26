@@ -8,15 +8,8 @@ const logsTotalCounter = new prometheus.Counter({
 })
 
 class PrometheusTransport extends Transport {
-  // constructor () {
-  //   super()
-  // }
-
   log (info, callback) {
-    setImmediate(() => {
-      this.emit('logged', info)
-      logsTotalCounter.inc({ level: info.level })
-    })
+    logsTotalCounter.inc({ level: info.level })
     callback()
   }
 }

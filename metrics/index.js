@@ -27,7 +27,7 @@ class Metrics {
       res.set('Content-Type', prometheus.register.contentType)
       res.send(await prometheus.register.metrics())
       const { originalUrl: urlPath, method } = req
-      options.logger.info('User Visited', { exportToPrometheus: false, urlPath, method, statusCode: res.statusCode })
+      options.logger.info('User Visited', { urlPath, method, statusCode: res.statusCode })
     }))
     app.listen(options.port, () => {
       options.logger.info(`Metrics Server listening at http://localhost:${options.port}`)

@@ -49,10 +49,6 @@ class Logger {
     this.jsonLogger.debug.apply(this.jsonLogger, formatLogArguments(arguments))
   }
 
-  /* const log = function () {
-    jsonLogger.log.apply(jsonLogger, formatLogArguments(arguments))
-  } */
-
   info () {
     this.jsonLogger.info.apply(this.jsonLogger, formatLogArguments(arguments))
   }
@@ -65,9 +61,8 @@ class Logger {
     this.jsonLogger.error.apply(this.jsonLogger, formatLogArguments(arguments))
   }
 
-  child () {
-    // return this.jsonLogger.child(arguments)
-    return new Logger({ defaultMeta: arguments })
+  child (meta = {}) {
+    return new Logger({ defaultMeta: meta })
   }
 }
 
@@ -88,10 +83,17 @@ function formatLogArguments (args) {
     } else {
       args.unshift(calleeStr)
     } */
-    if (typeof (args[1]) === 'object') {
-      args[1].caller = calleeStr
-    } else {
-      args[1] = { caller: calleeStr }
+    switch (typeof args[1]) {
+      case 'function':
+        args.splice(1, 0, { caller: calleeStr })
+        break
+      case 'object':
+        args[1].caller = calleeStr
+        break
+      case 'undefined':
+        if (typeof args[0] === 'string') args[1] = { caller: calleeStr }
+        else if (typeof args[0] === 'object') args[0].caller = calleeStr
+        break
     }
   }
 
