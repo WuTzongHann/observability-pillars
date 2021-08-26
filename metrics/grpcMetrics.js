@@ -37,20 +37,25 @@ const grpcErrorHandler = (err, ctx) => {
   jsonLogger.error(err.message, { service, method, statusCode: err.code })
 }
 
+// using process.hrtime() for timing
+const elapsedTime = function (start) {
+  const elapsedTimeInSecond = process.hrtime(start)[0] + (process.hrtime(start)[1] / 1000000000)
+  const elapsedTimeInSecondRoundToThreeDecimalPlaces = Math.round(elapsedTimeInSecond * 1000) / 1000
+  return elapsedTimeInSecondRoundToThreeDecimalPlaces
+}
+
 const grpcMetricsInterceptor = async (ctx, next) => {
   const { service, name: method } = ctx
   grpcRequestsInflight.inc({
     service, method
   })
-  // check this: https://stackoverflow.com/a/14551263/8694937
-  // maybe use process.hrtime() would more like a pro
-  const start = new Date().getTime()
+  const start = process.hrtime()
   try {
     await next()
   } catch (err) {
     grpcErrorHandler(err, ctx)
   } finally {
-    const duration = (new Date().getTime() - start) / 1000
+    const duration = elapsedTime(start)
     const statusCode = ctx.response.status.statusCode
     const sizeBytes = new Int8Array(ctx.res.arrayBuffer).length
     grpcRequestTotalCounter.inc({

@@ -24,12 +24,14 @@ const httpRequestsInflight = new prometheus.Gauge({
   labelNames: ['urlPath', 'method']
 })
 
+// responseTime(fn) can provide the duration of handling a request (even though it encounters an uncaught error), the fn will be executed while the response is get ready to client
 const httpMetricsMiddleware = responseTime((req, res, time) => {
   const { originalUrl: urlPath, method } = req
   httpRequestsInflight.inc({
     urlPath, method
   })
-  const duration = time / 1000
+  const elapsedTimeInSecondRoundToThreeDecimalPlaces = Math.round(time) / 1000
+  const duration = elapsedTimeInSecondRoundToThreeDecimalPlaces
   const statusCode = res.statusCode
   const sizeBytes = new Int8Array(res.arrayBuffer).length
   httpRequestTotalCounter.inc({
