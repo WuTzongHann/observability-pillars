@@ -1,7 +1,11 @@
 import { status, statusesByCodes } from '../../utility.js'
-import jsonLogger from '../../logs/index.js'
 
-const echo = (ctx) => {
+import axios from 'axios'
+// import path from 'path'
+// import GRPCClient from 'node-grpc-client'
+import traces from '../../traces/index.js'
+
+const echo = async (ctx, next) => {
   const receivedTime = new Date()
   const response = {
     echoRequest: {
@@ -14,7 +18,7 @@ const echo = (ctx) => {
   ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
   ctx.res = response
   const { service, name: method } = ctx
-  jsonLogger.info('User Visited', { service, method, statusCode: ctx.response.status.statusCode })
+  ctx.locals.logger.info('User Visited', { service, method, statusCode: ctx.response.status.statusCode })
 }
 const waitMilliSeconds = (ms) => {
   const start = new Date().getTime()
@@ -37,8 +41,45 @@ const testing = async (ctx) => {
   ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
   ctx.res = response
   const { service, name: method } = ctx
-  jsonLogger.info('User Visited', { service, method, statusCode: ctx.response.status.statusCode })
+  ctx.locals.logger.info('User Visited', { service, method, statusCode: ctx.response.status.statusCode })
 }
 
+const gotoHTTP = async (ctx, next) => {
+  const newHeaders = { 'content-type': 'application/json' }
+  traces.SetOutgoingHeaderWithTraceFromContext(ctx.metadata, newHeaders)
+
+  const response = await axios.get('http://localhost:8080/health',
+    {
+      headers: newHeaders,
+      data: {
+        message_id: 'qwert',
+        message_body: 'hello ping service'
+      }
+    })
+
+  ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
+  ctx.res = { response: JSON.stringify(response.data) }
+  const { service, name: method } = ctx
+  ctx.locals.logger.info('User Visited', { service, method, statusCode: ctx.response.status.statusCode })
+}
+
+/* const gotoGRPC = async (ctx, next) => {
+  const PROTO_PATH = path.resolve('./grpc/protos/ping.proto')
+  const myClient = new GRPCClient(PROTO_PATH, 'myPing', 'Ping', 'localhost:8081')
+  const options = { metadata: {} }
+  options.metadata = traces.NewOutgoingContextWithTraceFromContext(ctx.metadata)
+
+  myClient.runService('echo', { message_id: 'qwert', message_body: 'hello ping service' }, (err, response) => {
+    if (err) {
+      // throw new Error()
+    }
+    console.log('Service response ', response)
+    ctx.setStatus({ statusCode: status.OK, statusDescription: statusesByCodes.get(status.OK) })
+    ctx.res = { response: JSON.stringify(response) }
+    const { service, name: method } = ctx
+    ctx.locals.logger.info('User Visited', { service, method, statusCode: ctx.response.status.statusCode })
+  }, options)
+} */
+
 export default { echo, testing }
-export { echo, testing, status, statusesByCodes }
+export { echo, testing, gotoHTTP, /* gotoGRPC, */ status, statusesByCodes }
