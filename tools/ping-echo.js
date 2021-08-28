@@ -14,7 +14,7 @@ const protoDescriptor = grpc.loadPackageDefinition(packageDefinition)
 
 function sendRequest () {
   const target = 'localhost:8081'
-  const client = new protoDescriptor.Ping(target, grpc.credentials.createInsecure())
+  const client = new protoDescriptor.myPing.Ping(target, grpc.credentials.createInsecure())
 
   client.Echo({ message_id: 'qwert', message_body: 'hello ping service' }, function (err, response) {
     if (err) {
