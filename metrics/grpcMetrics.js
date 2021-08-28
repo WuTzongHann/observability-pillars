@@ -1,6 +1,5 @@
 import prometheus from 'prom-client'
 import { status, statusesByCodes } from '../utility.js'
-import jsonLogger from '../logs/index.js'
 
 const grpcRequestTotalCounter = new prometheus.Counter({
   name: 'grpc_requests_total',
@@ -34,7 +33,7 @@ const grpcErrorHandler = (err, ctx) => {
   })
   ctx.res = err
   const { service, name: method } = ctx
-  jsonLogger.error(err.message, { service, method, statusCode: err.code })
+  ctx.locals.logger.error(err.message, { service, method, statusCode: err.code })
 }
 
 // using process.hrtime() for timing
