@@ -6,7 +6,9 @@ const { combine, timestamp, printf } = winston.format
 const PROJECT_ROOT = path.join('file:/', path.resolve())
 
 const myFormat = printf(info => {
-  return `{"level":"${info.level}","timestamp":"${info.timestamp}","caller":"${info.caller}","message":${JSON.stringify(info.message)}}`
+  const result1 = (info.trace_id !== undefined && info.span_id !== undefined) ? `"trace_id":"${info.trace_id}","span_id":"${info.span_id}",` : ''
+  const result2 = `"level":"${info.level}","timestamp":"${info.timestamp}","caller":"${info.caller}","message":${JSON.stringify(info.message)}`
+  return `{${result1}${result2}}`
 })
 
 const defaultOptions = {
