@@ -31,7 +31,7 @@ const echoYourRequest = (req, res) => {
   res.locals.logger.info('User Visited', { urlPath, method, statusCode: res.statusCode })
 }
 
-const gotoHTTP = async (req, res) => {
+const gotoHTTP = async (req, res, next) => {
   const newHeaders = { 'content-type': 'application/json' }
   traces.SetOutgoingHeaderWithTraceFromHeader(req.headers, newHeaders)
   await axios.get('http://localhost:8080/health',
@@ -47,23 +47,21 @@ const gotoHTTP = async (req, res) => {
       const { originalUrl: urlPath, method } = req
       res.locals.logger.info('User Visited', { urlPath, method, statusCode: res.statusCode })
     })
+    .catch(err => next(err))
 }
-//still need to use async/await
-const gotoGRPC = (req, res) => {
+
+const gotoGRPC = async (req, res, next) => {
   const PROTO_PATH = path.resolve('./grpc/protos/ping.proto')
   const myClient = new GRPCClient(PROTO_PATH, 'myPing', 'Ping', 'localhost:8081')
   const options = { metadata: {} }
   options.metadata = traces.NewOutgoingContextWithTraceFromHeader(req.headers)
 
-  myClient.runService('echo', { message_id: 'qwert', message_body: 'hello ping service' }, (err, response) => {
-    if (err) {
-      console.log(err)
-      response.json(err)
-      return
-    }
-    console.log('Service response ', response)
-    res.json(response)
-  }, options)
+  await myClient.echoSync({ message_id: 'qwert', message_body: 'hello ping service' }, options)
+    .then(response => {
+      console.log('Service response ', response)
+      res.json(response)
+    })
+    .catch(err => next(err))
 }
 
 const returnAnError = () => {
