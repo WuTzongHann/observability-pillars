@@ -9,8 +9,8 @@ import handlers from './http/handlers/index.js'
 import {
   echo,
   testing,
-  gotoHTTP/* ,
-  gotoGRPC */
+  gotoHTTP,
+  gotoGRPC
 } from './grpc/services/ping.js'
 
 const HTTP_PORT = 8080
@@ -37,7 +37,7 @@ const main = async () => {
   const gRPCServer = new Mali(PROTO_PATH)
   gRPCServer.use(traces.grpcInterceptor(logger))
   gRPCServer.use(metrics.grpcInterceptor())
-  gRPCServer.use({ echo, testing, gotoHTTP/* , gotoGRPC */ })
+  gRPCServer.use({ echo, testing, gotoHTTP, gotoGRPC })
   await gRPCServer.start(`0.0.0.0:${GRPC_PORT}`)
   logger.info(`gRPC Server listening at http://localhost:${GRPC_PORT}`)
 }
