@@ -25,6 +25,7 @@ const grpcRequestsInflight = new prometheus.Gauge({
 })
 
 const grpcErrorHandler = (err, ctx) => {
+  delete err.metadata // if you have metadata, you will encounter an error: "TypeError: statusObj.metadata.toHttp2Headers is not a function"
   err.code = (err.code === undefined) ? status.INTERNAL : err.code
   err.message = (err.message === undefined) ? statusesByCodes.get(err.code) : err.message
   ctx.setStatus({
