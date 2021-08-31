@@ -5,35 +5,44 @@ import { isJSON } from '../utility.js'
 
 const { combine, timestamp, json } = winston.format
 
-const mySort = winston.format((info) => {
-  const myDefaultKeys = ['trace_id', 'span_id', 'level', 'timestamp', 'caller', 'message']
-  const remainingKeys = Object.keys(info).sort()
-  const keys = []
-
-  for (let i = 0; i < myDefaultKeys.length; i++) {
-    if (myDefaultKeys[i] in info) {
-      keys.push(myDefaultKeys[i])
-      remainingKeys.splice(remainingKeys.indexOf(myDefaultKeys[i]), 1)
-    }
-  }
-  keys.push(...remainingKeys)
-
-  for (let i = 0, length = keys.length; i < length; i++) {
-    const value = info[keys[i]]
-    delete info[keys[i]]
-    info[keys[i]] = value
-  }
-
-  return info
-})
-
 const defaultOptions = {
-  defaultMeta: {}
+  defaultMeta: {},
+  mySortedKeys: ['trace_id', 'span_id', 'level', 'timestamp', 'caller', 'message'],
+  ignoreRemainingKeys: false
 }
 
 class Logger {
   constructor (userOptions = {}) {
     const options = { ...defaultOptions, ...userOptions }
+
+    const mySort = winston.format((info) => {
+      const { mySortedKeys: sortedKeys, ignoreRemainingKeys } = options
+      const remainingKeys = Object.keys(info).sort()
+      const keys = []
+
+      for (let i = 0; i < sortedKeys.length; i++) {
+        if (sortedKeys[i] in info) {
+          keys.push(sortedKeys[i])
+          remainingKeys.splice(remainingKeys.indexOf(sortedKeys[i]), 1)
+        }
+      }
+      keys.push(...remainingKeys)
+
+      for (let i = 0, length = keys.length; i < length; i++) {
+        const value = info[keys[i]]
+        delete info[keys[i]]
+        info[keys[i]] = value
+      }
+
+      if (ignoreRemainingKeys) {
+        for (let i = 0; i < remainingKeys.length; i++) {
+          delete info[remainingKeys[i]]
+        }
+      }
+
+      return info
+    })
+
     this.logger = winston.createLogger({
       level: 'info',
       format: combine(timestamp(), mySort(), json()),
