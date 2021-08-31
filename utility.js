@@ -20,4 +20,21 @@ const statusesByCodes = new Map([
   [status.UNAUTHENTICATED, 'Unauthenticated']
 ])
 
-export { status, statusesByCodes }
+const isJSON = (str) => {
+  if (typeof str === 'string') {
+    try {
+      JSON.parse(str)
+      if (str.indexOf('{') > -1) {
+        return true
+      } else {
+        return false
+      }
+    } catch (err) {
+      return false
+    }
+  } else {
+    return false
+  }
+}
+
+export { status, statusesByCodes, isJSON }
