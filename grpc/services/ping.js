@@ -1,9 +1,15 @@
-import { status, statusesByCodes } from '../../utility.js'
-
 import axios from 'axios'
 import path from 'path'
 import GRPCClient from 'node-grpc-client'
+import { status, statusesByCodes } from '../../utility.js'
 import traces from '../../traces/index.js'
+
+const throwError = (statusCode) => {
+  const err = new Error()
+  err.code = statusCode
+  err.message = statusesByCodes.get(statusCode)
+  throw err
+}
 
 const echo = async (ctx, next) => {
   const receivedTime = new Date()
@@ -79,5 +85,4 @@ const gotoGRPC = async (ctx) => {
     })
 }
 
-export default { echo, testing }
-export { echo, testing, gotoHTTP, gotoGRPC, status, statusesByCodes }
+export default { echo, testing, gotoHTTP, gotoGRPC }
