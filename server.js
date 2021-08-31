@@ -1,17 +1,20 @@
 import express from 'express'
 import Mali from 'mali'
+import morgan from 'morgan'
 import defaultRouter from './http/routes/default.js'
 import patientsRouter from './http/routes/patients.js'
 import Metrics from './metrics/index.js'
 import Logger from './logs/index.js'
 import traces from './traces/index.js'
 import handlers from './http/handlers/index.js'
-import {
+import pingMethods from './grpc/services/ping.js'
+
+const {
   echo,
   testing,
   gotoHTTP,
   gotoGRPC
-} from './grpc/services/ping.js'
+} = pingMethods
 
 const HTTP_PORT = 8080
 const GRPC_PORT = 8081
@@ -22,14 +25,21 @@ const main = async () => {
   const logger = new Logger()
 
   const httpServer = express()
+  // app = new App()
   httpServer.use(traces.httpMiddleware(logger))
   httpServer.use(metrics.httpMiddleware())
+  httpServer.use(morgan('tiny', {
+    stream: logger.stream
+  }))
   httpServer.use(express.json())
   httpServer.use(handlers.unsupportedMediaType)
   httpServer.use(defaultRouter)
   httpServer.use('/patients', patientsRouter)
   httpServer.use(handlers.notFound)
   httpServer.use(handlers.error)
+
+  // app.start
+  // httpServer.use(app.error)
   httpServer.listen(HTTP_PORT, () => {
     logger.info(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
   })
