@@ -1,14 +1,30 @@
 import winston from 'winston'
-import PrometheusTransport from './prometheusTransport.js'
 import path from 'path'
+import PrometheusTransport from './prometheusTransport.js'
+import { isJSON } from '../utility.js'
 
-const { combine, timestamp, printf } = winston.format
-const PROJECT_ROOT = path.join('file:/', path.resolve())
+const { combine, timestamp, json } = winston.format
 
-const myFormat = printf(info => {
-  const result1 = (info.trace_id !== undefined && info.span_id !== undefined) ? `"trace_id":"${info.trace_id}","span_id":"${info.span_id}",` : ''
-  const result2 = `"level":"${info.level}","timestamp":"${info.timestamp}","caller":"${info.caller}","message":${JSON.stringify(info.message)}`
-  return `{${result1}${result2}}`
+const mySort = winston.format((info) => {
+  const myDefaultKeys = ['trace_id', 'span_id', 'level', 'timestamp', 'caller', 'message']
+  const remainingKeys = Object.keys(info).sort()
+  const keys = []
+
+  for (let i = 0; i < myDefaultKeys.length; i++) {
+    if (myDefaultKeys[i] in info) {
+      keys.push(myDefaultKeys[i])
+      remainingKeys.splice(remainingKeys.indexOf(myDefaultKeys[i]), 1)
+    }
+  }
+  keys.push(...remainingKeys)
+
+  for (let i = 0, length = keys.length; i < length; i++) {
+    const value = info[keys[i]]
+    delete info[keys[i]]
+    info[keys[i]] = value
+  }
+
+  return info
 })
 
 const defaultOptions = {
@@ -18,9 +34,9 @@ const defaultOptions = {
 class Logger {
   constructor (userOptions = {}) {
     const options = { ...defaultOptions, ...userOptions }
-    this.jsonLogger = winston.createLogger({
+    this.logger = winston.createLogger({
       level: 'info',
-      format: combine(timestamp(), myFormat),
+      format: combine(timestamp(), mySort(), json()),
       defaultMeta: options.defaultMeta,
       transports: [
         new winston.transports.Console(),
@@ -30,60 +46,54 @@ class Logger {
 
     // ref: https://gist.github.com/ludwig/b47b5de4a4c53235825af3b4cef4869a
     // this allows winston to handle output from express' morgan middleware
-    this.jsonLogger.stream = {
-      write: function (message) {
-        this.jsonLogger.info(message)
+    this.stream = {
+      write: (message) => {
+        if (typeof message !== 'string') console.log(new Error('message is only accepted in a string format'))
+        if (isJSON(message)) {
+          const obj = JSON.parse(message)
+          const objMessage = (obj.message === undefined) ? '' : obj.message
+          delete obj.message
+          this.logger.info.apply(this.logger, formatLogArguments([objMessage, obj]))
+        } else {
+          this.logger.info.apply(this.logger, formatLogArguments([message]))
+        }
       }
     }
-    this.stream = this.jsonLogger.stream
   }
 
-  // A custom logger interface that wraps winston, making it easy to instrument
-  // code and still possible to replace winston in the future.
+  // A custom logger interface that wraps winston, making it easy to instrument code and still possible to replace winston in the future.
+  log () { this.logger.debug.apply(this.logger, formatLogArguments(arguments)) }
+  debug () { this.logger.debug.apply(this.logger, formatLogArguments(arguments)) }
+  info () { this.logger.info.apply(this.logger, formatLogArguments(arguments)) }
+  warn () { this.logger.warn.apply(this.logger, formatLogArguments(arguments)) }
+  error () { this.logger.error.apply(this.logger, formatLogArguments(arguments)) }
 
-  debug () {
-    this.jsonLogger.debug.apply(this.jsonLogger, formatLogArguments(arguments))
-  }
-
-  info () {
-    this.jsonLogger.info.apply(this.jsonLogger, formatLogArguments(arguments))
-  }
-
-  warn () {
-    this.jsonLogger.warn.apply(this.jsonLogger, formatLogArguments(arguments))
-  }
-
-  error () {
-    this.jsonLogger.error.apply(this.jsonLogger, formatLogArguments(arguments))
-  }
-
-  child (meta = {}) {
-    return new Logger({ defaultMeta: meta })
-  }
+  child (meta = {}) { return new Logger({ defaultMeta: meta }) }
 }
 
 /**
  * Attempts to add file and line number info to the given log arguments.
  */
 function formatLogArguments (args) {
+  if (args.length === 0) args = ['']
   args = Array.prototype.slice.call(args)
 
   const stackInfo = getStackInfo(1)
 
   if (stackInfo) {
     // get file path relative to project root
-    const calleeStr = '(' + stackInfo.relativePath + ':' + stackInfo.line + ')'
+    const callerStr = '(' + stackInfo.relativePath + ':' + stackInfo.line + ')'
 
     switch (typeof args[1]) {
       case 'function':
-        args.splice(1, 0, { caller: calleeStr })
+        args.splice(1, 0, { caller: callerStr })
         break
       case 'object':
-        args[1].caller = calleeStr
+        args[1].caller = callerStr
         break
       case 'undefined':
-        if (typeof args[0] === 'string') args[1] = { caller: calleeStr }
-        else if (typeof args[0] === 'object') args[0].caller = calleeStr
+        if (typeof args[0] === 'string') args[1] = { caller: callerStr }
+        else if (typeof args[0] === 'object') args[0].caller = callerStr
         break
     }
   }
@@ -102,8 +112,6 @@ function getStackInfo (stackIndex) {
   // stack trace format:
   // http://code.google.com/p/v8/wiki/JavaScriptStackTraceApi
   // do not remove the regex expresses to outside of this method (due to a BUG in node.js)
-  // const stackReg = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/gi
-  // const stackReg2 = /at\s+()(.*):(\d*):(\d*)/gi
   const stackReg = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/gi
   const stackReg2 = /at\s+()(.*):(\d*):(\d*)/gi
 
@@ -113,7 +121,7 @@ function getStackInfo (stackIndex) {
   if (sp && sp.length === 5) {
     return {
       method: sp[1],
-      relativePath: path.relative(PROJECT_ROOT, sp[2]),
+      relativePath: path.relative(path.resolve(), sp[2].split('//').pop()),
       line: sp[3],
       pos: sp[4],
       file: path.basename(sp[2]),
