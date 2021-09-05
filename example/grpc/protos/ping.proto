@@ -4,10 +4,19 @@ import "google/protobuf/empty.proto";
 package myPing;
 
 service Ping {
+    rpc Health (HealthRequest) returns (HealthReply) {}
     rpc Echo (EchoRequest) returns (EchoReply) {}
-    rpc Testing (EchoRequest) returns (EchoReply) {}
-    rpc gotoHTTP (gotoHTTPRequest) returns (gotoHTTPReply) {}
-    rpc gotoGRPC (gotoGRPCRequest) returns (gotoGRPCReply) {}
+    rpc GotoHTTP (GotoHTTPRequest) returns (GotoHTTPReply) {}
+    rpc GotoGRPC (GotoGRPCRequest) returns (GotoGRPCReply) {}
+    rpc ErrorTest (ErrorTestRequest) returns (ErrorTestReply) {}
+    rpc AsyncTest (AsyncTestRequest) returns (AsyncTestReply) {}
+}
+
+message HealthRequest {
+}
+
+message HealthReply {
+    string response = 1;
 }
 
 message EchoRequest {
@@ -21,20 +30,30 @@ message EchoReply {
     uint64 timestamp = 3;
 }
 
-message gotoHTTPRequest {
-    string message_id = 1;
-    string message_body = 2;
+message GotoHTTPRequest {
 }
 
-message gotoHTTPReply {
+message GotoHTTPReply {
     string response = 1;
 }
 
-message gotoGRPCRequest {
-    string message_id = 1;
-    string message_body = 2;
+message GotoGRPCRequest {
 }
 
-message gotoGRPCReply {
+message GotoGRPCReply {
+    string response = 1;
+}
+
+message ErrorTestRequest {
+}
+
+message ErrorTestReply {
+    string response = 1;
+}
+
+message AsyncTestRequest {
+}
+
+message AsyncTestReply {
     string response = 1;
 }
