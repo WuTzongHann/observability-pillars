@@ -16,6 +16,10 @@ class Logger {
 
     const { printAll } = options
     const myFormat = printf(info => {
+      info = Object.keys(info).sort().reduce((result, key) => {
+        result[key] = info[key]
+        return result
+      }, {})
       const { trace_id, span_id, level, timestamp, caller, message, ...others } = info
       const matched = Object.assign(
         { trace_id, span_id, level, timestamp, caller, message },
@@ -44,7 +48,7 @@ class Logger {
           delete obj.message
           this.logger.info.apply(this.logger, formatLogArguments([objMessage, obj]))
         } else {
-          this.logger.info.apply(this.logger, formatLogArguments({ 0: message }))
+          this.logger.info.apply(this.logger, formatLogArguments([message]))
         }
       }
     }
@@ -57,7 +61,14 @@ class Logger {
   warn () { this.logger.warn.apply(this.logger, formatLogArguments(arguments)) }
   error () { this.logger.error.apply(this.logger, formatLogArguments(arguments)) }
 
-  child (meta = {}) { return new Logger({ defaultMeta: meta }) }
+  child (defaultMeta = {}) {
+    const childLogger = new Logger({ defaultMeta })
+    const keys = Object.keys(defaultMeta)
+    keys.forEach((key) => {
+      childLogger[key] = defaultMeta[key]
+    })
+    return childLogger
+  }
 }
 
 /**
