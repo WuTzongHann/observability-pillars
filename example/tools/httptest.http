@@ -1,0 +1,13 @@
+@host = localhost
+
+POST http://{{host}}:8080/echo HTTP/1.1
+content-type: application/json
+x-request-id: exampleXRequestId
+x-b3-traceid: exampleXB3TraceId
+x-b3-spanid: exampleXB3SpanId
+x-b3-parentspanid: exampleXB3ParentId
+
+{
+    "message_id": "exampleId",
+    "message_body": "exampleBody"
+}
