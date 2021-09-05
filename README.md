@@ -1,6 +1,6 @@
 # Clone from GitHub
 ```
-git clone https://github.com/WuTzongHann/nodejsserver.git
+git clone https://github.com/WuTzongHann/observability-pillars.git
 cd nodejsserver
 ```
 
