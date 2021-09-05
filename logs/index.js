@@ -3,49 +3,30 @@ import path from 'path'
 import PrometheusTransport from './prometheusTransport.js'
 import { isJSON } from '../utility.js'
 
-const { combine, timestamp, json } = winston.format
+const { combine, timestamp, printf } = winston.format
 
 const defaultOptions = {
   defaultMeta: {},
-  mySortedKeys: ['trace_id', 'span_id', 'level', 'timestamp', 'caller', 'message'],
-  ignoreRemainingKeys: false
+  printAll: true
 }
 
 class Logger {
   constructor (userOptions = {}) {
     const options = { ...defaultOptions, ...userOptions }
 
-    const mySort = winston.format((info) => {
-      const { mySortedKeys: sortedKeys, ignoreRemainingKeys } = options
-      const remainingKeys = Object.keys(info).sort()
-      const keys = []
-
-      for (let i = 0; i < sortedKeys.length; i++) {
-        if (sortedKeys[i] in info) {
-          keys.push(sortedKeys[i])
-          remainingKeys.splice(remainingKeys.indexOf(sortedKeys[i]), 1)
-        }
-      }
-      keys.push(...remainingKeys)
-
-      for (let i = 0, length = keys.length; i < length; i++) {
-        const value = info[keys[i]]
-        delete info[keys[i]]
-        info[keys[i]] = value
-      }
-
-      if (ignoreRemainingKeys) {
-        for (let i = 0; i < remainingKeys.length; i++) {
-          delete info[remainingKeys[i]]
-        }
-      }
-
-      return info
+    const { printAll } = options
+    const myFormat = printf(info => {
+      const { trace_id, span_id, level, timestamp, caller, message, ...others } = info
+      const matched = Object.assign(
+        { trace_id, span_id, level, timestamp, caller, message },
+        printAll ? others : {}
+      )
+      return JSON.stringify(matched)
     })
 
     this.logger = winston.createLogger({
       level: 'info',
-      format: combine(timestamp(), mySort(), json()),
+      format: combine(timestamp(), myFormat),
       defaultMeta: options.defaultMeta,
       transports: [
         new winston.transports.Console(),
@@ -53,8 +34,7 @@ class Logger {
       ]
     })
 
-    // ref: https://gist.github.com/ludwig/b47b5de4a4c53235825af3b4cef4869a
-    // this allows winston to handle output from express' morgan middleware
+    // this allows logger to handle output from express' morgan middleware
     this.stream = {
       write: (message) => {
         if (typeof message !== 'string') console.log(new Error('message is only accepted in a string format'))
@@ -64,7 +44,7 @@ class Logger {
           delete obj.message
           this.logger.info.apply(this.logger, formatLogArguments([objMessage, obj]))
         } else {
-          this.logger.info.apply(this.logger, formatLogArguments([message]))
+          this.logger.info.apply(this.logger, formatLogArguments({ 0: message }))
         }
       }
     }
@@ -85,26 +65,22 @@ class Logger {
  */
 function formatLogArguments (args) {
   if (args.length === 0) args = ['']
-  args = Array.prototype.slice.call(args)
+  else args = Array.prototype.slice.call(Array.from(args))
 
-  const stackInfo = getStackInfo(1)
+  const { relativePath, line, origin } = getStackFrame(1)
+  const callerStr = (relativePath !== '' & line !== '') ? `(${relativePath}:${line})` : origin
 
-  if (stackInfo) {
-    // get file path relative to project root
-    const callerStr = '(' + stackInfo.relativePath + ':' + stackInfo.line + ')'
-
-    switch (typeof args[1]) {
-      case 'function':
-        args.splice(1, 0, { caller: callerStr })
-        break
-      case 'object':
-        args[1].caller = callerStr
-        break
-      case 'undefined':
-        if (typeof args[0] === 'string') args[1] = { caller: callerStr }
-        else if (typeof args[0] === 'object') args[0].caller = callerStr
-        break
-    }
+  switch (typeof args[1]) {
+    case 'function':
+      args.splice(1, 0, { caller: callerStr })
+      break
+    case 'object':
+      args[1].caller = callerStr
+      break
+    case 'undefined':
+      if (typeof args[0] === 'string') args[1] = { caller: callerStr }
+      else if (typeof args[0] === 'object') args[0].caller = callerStr
+      break
   }
 
   return args
@@ -113,28 +89,35 @@ function formatLogArguments (args) {
 /**
  * Parses and returns info about the call stack at the given index.
  */
-function getStackInfo (stackIndex) {
+const getStackFrame = (frameIndex) => {
   // get call stack, and analyze it
   // get all file, method, and line numbers
-  const stacklist = (new Error()).stack.split('\n').slice(3)
+  const stackFrames = (new Error()).stack.split('\n').slice(3)
 
-  // stack trace format:
-  // http://code.google.com/p/v8/wiki/JavaScriptStackTraceApi
+  // stack frame format: https://v8.dev/docs/stack-trace-api
   // do not remove the regex expresses to outside of this method (due to a BUG in node.js)
-  const stackReg = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/gi
-  const stackReg2 = /at\s+()(.*):(\d*):(\d*)/gi
+  const frameRegWithMethodName = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/gi
+  const frameRegWithNoMethodName = /at\s+()(.*):(\d*):(\d*)/gi
 
-  const s = stacklist[stackIndex] || stacklist[0]
-  const sp = stackReg.exec(s) || stackReg2.exec(s)
-
-  if (sp && sp.length === 5) {
+  const targetFrame = stackFrames[frameIndex] || stackFrames[0]
+  const result = frameRegWithMethodName.exec(targetFrame) || frameRegWithNoMethodName.exec(targetFrame)
+  if (result && result.length === 5) {
     return {
-      method: sp[1],
-      relativePath: path.relative(path.resolve(), sp[2].split('//').pop()),
-      line: sp[3],
-      pos: sp[4],
-      file: path.basename(sp[2]),
-      stack: stacklist.join('\n')
+      method: result[1],
+      relativePath: path.relative(path.resolve(), result[2].split('//').pop()),
+      line: result[3],
+      pos: result[4],
+      file: path.basename(result[2]),
+      origin: targetFrame
+    }
+  } else {
+    return {
+      method: '',
+      relativePath: '',
+      line: '',
+      pos: '',
+      file: '',
+      origin: targetFrame
     }
   }
 }
