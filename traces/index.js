@@ -28,40 +28,43 @@ const grpcInterceptor = (logger = defaultOptions.logger) => async (ctx, next) =>
     span_id: spanid
   })
   ctx.locals.logger = childLogger
-  await next() // must write await
+  await next()
 }
 
-const getExistValueOrEmptyString = (value) => (value === undefined) ? '' : value
+/**
+ * getExistStringOrEmptyString
+ */
+const parseValue = (value) => (value === undefined) ? '' : value
 
 const SetOutgoingHeaderWithTraceFromHeader = (httpHeadersInput, httpHeadersOutput) => {
-  httpHeadersOutput[xRequestId] = getExistValueOrEmptyString(httpHeadersInput[xRequestId])
-  httpHeadersOutput[xB3TraceId] = getExistValueOrEmptyString(httpHeadersInput[xB3TraceId])
-  httpHeadersOutput[xB3SpanId] = getExistValueOrEmptyString(httpHeadersInput[xB3SpanId])
-  httpHeadersOutput[xB3ParentId] = getExistValueOrEmptyString(httpHeadersInput[xB3ParentId])
+  httpHeadersOutput[xRequestId] = parseValue(httpHeadersInput[xRequestId])
+  httpHeadersOutput[xB3TraceId] = parseValue(httpHeadersInput[xB3TraceId])
+  httpHeadersOutput[xB3SpanId] = parseValue(httpHeadersInput[xB3SpanId])
+  httpHeadersOutput[xB3ParentId] = parseValue(httpHeadersInput[xB3ParentId])
 }
 
 const NewOutgoingContextWithTraceFromHeader = (httpHeadersInput) => {
   const result = {}
-  result[xRequestId] = getExistValueOrEmptyString(httpHeadersInput[xRequestId])
-  result[xB3TraceId] = getExistValueOrEmptyString(httpHeadersInput[xB3TraceId])
-  result[xB3SpanId] = getExistValueOrEmptyString(httpHeadersInput[xB3SpanId])
-  result[xB3ParentId] = getExistValueOrEmptyString(httpHeadersInput[xB3ParentId])
+  result[xRequestId] = parseValue(httpHeadersInput[xRequestId])
+  result[xB3TraceId] = parseValue(httpHeadersInput[xB3TraceId])
+  result[xB3SpanId] = parseValue(httpHeadersInput[xB3SpanId])
+  result[xB3ParentId] = parseValue(httpHeadersInput[xB3ParentId])
   return result
 }
 
 const SetOutgoingHeaderWithTraceFromContext = (grpcMetadataInput, httpHeadersOutput) => {
-  httpHeadersOutput[xRequestId] = getExistValueOrEmptyString(grpcMetadataInput[xRequestId])
-  httpHeadersOutput[xB3TraceId] = getExistValueOrEmptyString(grpcMetadataInput[xB3TraceId])
-  httpHeadersOutput[xB3SpanId] = getExistValueOrEmptyString(grpcMetadataInput[xB3SpanId])
-  httpHeadersOutput[xB3ParentId] = getExistValueOrEmptyString(grpcMetadataInput[xB3ParentId])
+  httpHeadersOutput[xRequestId] = parseValue(grpcMetadataInput[xRequestId])
+  httpHeadersOutput[xB3TraceId] = parseValue(grpcMetadataInput[xB3TraceId])
+  httpHeadersOutput[xB3SpanId] = parseValue(grpcMetadataInput[xB3SpanId])
+  httpHeadersOutput[xB3ParentId] = parseValue(grpcMetadataInput[xB3ParentId])
 }
 
 const NewOutgoingContextWithTraceFromContext = (grpcMetadataInput) => {
   const result = {}
-  result[xRequestId] = getExistValueOrEmptyString(grpcMetadataInput[xRequestId])
-  result[xB3TraceId] = getExistValueOrEmptyString(grpcMetadataInput[xB3TraceId])
-  result[xB3SpanId] = getExistValueOrEmptyString(grpcMetadataInput[xB3SpanId])
-  result[xB3ParentId] = getExistValueOrEmptyString(grpcMetadataInput[xB3ParentId])
+  result[xRequestId] = parseValue(grpcMetadataInput[xRequestId])
+  result[xB3TraceId] = parseValue(grpcMetadataInput[xB3TraceId])
+  result[xB3SpanId] = parseValue(grpcMetadataInput[xB3SpanId])
+  result[xB3ParentId] = parseValue(grpcMetadataInput[xB3ParentId])
   return result
 }
 

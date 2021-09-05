@@ -7,19 +7,20 @@ const asyncHandler = fn => (req, res, next) => {
     .resolve(fn(req, res, next))
     .catch(next)
 }
+
 const notAllowedMethod = (req, res) => {
   res.status(405).send()
-  res.locals.logger.error('Method Not Allowed', { statusCode: res.statusCode })
 }
+
 const router = express.Router()
 router.route('/')
-  .get(defaultController.sayHelloWorld)
+  .get(defaultController.helloWorld)
   .all(notAllowedMethod)
 router.route('/health')
-  .get(defaultController.responseHealth)
+  .get(defaultController.health)
   .all(notAllowedMethod)
 router.route('/echo')
-  .post(defaultController.echoYourRequest)
+  .post(defaultController.echo)
   .all(notAllowedMethod)
 router.route('/gotoHTTP')
   .get(defaultController.gotoHTTP)
@@ -27,11 +28,11 @@ router.route('/gotoHTTP')
 router.route('/gotoGRPC')
   .get(defaultController.gotoGRPC)
   .all(notAllowedMethod)
-router.route('/error')
-  .get(defaultController.responseError)
+router.route('/errorTest')
+  .get(defaultController.errorTest)
   .all(notAllowedMethod)
-router.route('/async')
-  .get(asyncHandler(defaultController.responseAsync))
+router.route('/asyncTest')
+  .get(asyncHandler(defaultController.asyncTest))
   .all(notAllowedMethod)
 
 export default router

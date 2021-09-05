@@ -15,6 +15,7 @@ morgan.token('span_id', (req, res) => res.locals.logger.span_id)
 class Pillars {
   constructor (userOptions = {}) {
     const options = { ...defaultOptions, ...userOptions }
+    const { PROTO_PATH } = options
     const metrics = new Metrics()
     const logger = new Logger()
     const httpServer = express()
@@ -30,8 +31,7 @@ class Pillars {
       })
     }, { stream: logger.stream }))
 
-    console.log(options.PROTO_PATH)
-    const grpcServer = new Mali(options.PROTO_PATH)
+    const grpcServer = new Mali(PROTO_PATH)
     grpcServer.use(traces.grpcInterceptor(logger))
     grpcServer.use(metrics.grpcInterceptor())
 

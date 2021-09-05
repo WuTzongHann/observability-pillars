@@ -22,17 +22,17 @@ const asyncHandler = fn => (req, res, next) => {
 class Metrics {
   constructor (userOptions = {}) {
     const options = { ...defaultOptions, ...userOptions }
+    const { port, path, collectDefaultMetrics, logger } = options
     const app = express()
-    app.get(options.path, asyncHandler(async (req, res, next) => {
+    app.get(path, asyncHandler(async (req, res, next) => {
       res.set('Content-Type', prometheus.register.contentType)
       res.send(await prometheus.register.metrics())
-      const { originalUrl: urlPath, method } = req
-      options.logger.info('User Visited', { urlPath, method, statusCode: res.statusCode })
+      logger.info('Metrics scraped')
     }))
-    app.listen(options.port, () => {
-      options.logger.info(`Metrics Server listening at http://localhost:${options.port}`)
+    app.listen(port, () => {
+      logger.info(`Metrics Server listening at http://localhost:${port}`)
     })
-    if (options.collectDefaultMetrics === true) {
+    if (collectDefaultMetrics === true) {
       prometheus.collectDefaultMetrics()
     }
   }

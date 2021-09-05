@@ -1,7 +1,6 @@
-import path from 'path'
 import GRPCClient from 'node-grpc-client'
 
-const PROTO_PATH = path.resolve('../grpc/protos/ping.proto')
+const PROTO_PATH = '../grpc/protos/ping.proto'
 const myClient = new GRPCClient(PROTO_PATH, 'myPing', 'Ping', 'localhost:8081')
 const options = { metadata: {} }
 options.metadata = {

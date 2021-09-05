@@ -1,6 +1,6 @@
 @host = localhost
 
-POST http://{{host}}:8080/echo HTTP/1.1
+GET http://{{host}}:8080/health HTTP/1.1
 content-type: application/json
 x-request-id: exampleXRequestId
 x-b3-traceid: exampleXB3TraceId

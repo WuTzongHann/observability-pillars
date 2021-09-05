@@ -13,8 +13,7 @@ const defaultOptions = {
 class Logger {
   constructor (userOptions = {}) {
     const options = { ...defaultOptions, ...userOptions }
-
-    const { printAll } = options
+    const { defaultMeta, printAll } = options
     const myFormat = printf(info => {
       info = Object.keys(info).sort().reduce((result, key) => {
         result[key] = info[key]
@@ -31,7 +30,7 @@ class Logger {
     this.logger = winston.createLogger({
       level: 'info',
       format: combine(timestamp(), myFormat),
-      defaultMeta: options.defaultMeta,
+      defaultMeta: defaultMeta,
       transports: [
         new winston.transports.Console(),
         new PrometheusTransport()
@@ -41,8 +40,9 @@ class Logger {
     // this allows logger to handle output from express' morgan middleware
     this.stream = {
       write: (message) => {
-        if (typeof message !== 'string') console.log(new Error('message is only accepted in a string format'))
-        if (isJSON(message)) {
+        if (typeof message !== 'string') {
+          this.logger.error.apply(this.logger, formatLogArguments(['message is only accepted in a string format']))
+        } else if (isJSON(message)) {
           const obj = JSON.parse(message)
           const objMessage = (obj.message === undefined) ? '' : obj.message
           delete obj.message
@@ -74,7 +74,7 @@ class Logger {
 /**
  * Attempts to add file and line number info to the given log arguments.
  */
-function formatLogArguments (args) {
+const formatLogArguments = (args) => {
   if (args.length === 0) args = ['']
   else args = Array.prototype.slice.call(Array.from(args))
 
