@@ -24,7 +24,7 @@ const isJSON = (str) => {
   if (typeof str === 'string') {
     try {
       JSON.parse(str)
-      if (str.indexOf('{') > -1) {
+      if (str.includes('{')) {
         return true
       } else {
         return false
