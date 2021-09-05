@@ -1,7 +1,7 @@
 # Clone from GitHub
 ```
 git clone https://github.com/WuTzongHann/observability-pillars.git
-cd nodejsserver
+cd observability-pillars
 ```
 
 # Install the dependencies
@@ -11,18 +11,19 @@ npm install
 
 # Run Server
 ```
-npm run startServer
+npm run startserver
 ```
 -> Example Result
 ```
-HTTP Server listening at http://localhost:8080
-gRPC Server listening at http://localhost:8081
+{"level":"info","timestamp":"2021-09-05T16:17:35.980Z","caller":"(../metrics/index.js:33)","message":"Metrics Server listening at http://localhost:9090"}
+{"level":"info","timestamp":"2021-09-05T16:17:35.983Z","caller":"(server.js:29)","message":"HTTP Server listening at http://localhost:8080"}
+{"level":"info","timestamp":"2021-09-05T16:17:35.988Z","caller":"(server.js:34)","message":"grpc Server listening at http://localhost:8081"}
 ```
 
 # HTTP Test
 Hello World
 ```
-npm run testhttphelloworld
+npm run httphelloworld
 ```
 -> Example Result
 ```
@@ -31,15 +32,15 @@ X-Powered-By: Express
 Content-Type: text/html; charset=utf-8
 Content-Length: 12
 ETag: W/"c-Lve95gjOVATpfV8EL5X4nxwjKHE"
-Date: Tue, 03 Aug 2021 12:25:27 GMT
+Date: Sun, 05 Sep 2021 16:18:24 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
 Hello World!
 ```
-Get Health
+Health
 ```
-npm run testhttphealth
+npm run httphealth
 ```
 -> Example Result
 ```
@@ -48,58 +49,88 @@ X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
 Content-Length: 15
 ETag: W/"f-VaSQ4oDUiZblZNAEkkN+sX+q3Sg"
-Date: Tue, 03 Aug 2021 12:25:53 GMT
+Date: Sun, 05 Sep 2021 16:19:21 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
 {"status":"ok"}
 ```
-Post Echo
+Echo
 ```
-npm run testhttpecho
+npm run httpecho
 ```
 -> Example Result
 ```
 HTTP/1.1 200 OK
 X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
-Content-Length: 121
-ETag: W/"79-irbO1QtgYEZN3GpkVJ061dP3kmo"
-Date: Tue, 03 Aug 2021 12:26:53 GMT
+Content-Length: 118
+ETag: W/"76-bPyPvjdZC80ryrESeg1wBvM/Phs"
+Date: Sun, 05 Sep 2021 16:19:54 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
 {
-  "message_id":"qwert",
-  "message_body":"hello ping service",
-  "timestr":"2021-08-03T12:26:53.964Z",
-  "timestamp":1627993613964
+  "message_id":"exampleId",
+  "message_body":"exampleBody",
+  "timestr":"2021-09-05T16:19:54.271Z",
+  "timestamp":1630858794271
 }
+```
+Others...
+```
+# GotoHTTP
+npm run httpgotohttp
+
+# GotoGRPC
+npm run httpgotogrpc
+
+# ErrorTest
+npm run httperror
+
+# AsyncTest
+npm run httpasync
 ```
 
 # gRPC Test
+Health
+```
+npm run grpchealth
+```
+-> Example Result
+```
+Service response  { response: '{"status":"ok"}' }
+```
 Echo
 ```
-npm run testgrpcecho
+npm run grpcecho
 ```
 -> Example Result
 ```
-{
-  echo_request: { message_id: 'qwert', message_body: 'hello ping service' },
-  timestr: 'Tue Aug 03 2021 20:28:03 GMT+0800 (Taipei Standard Time)',
-  timestamp: '1627993683844'
+Service response  {
+  echo_request: { message_id: 'exampleId', message_body: 'exampleBody' },
+  timestr: 'Mon Sep 06 2021 00:27:10 GMT+0800 (Taipei Standard Time)',
+  timestamp: '1630859230648'
 }
 ```
-Testing
+Others...
 ```
-npm run testgrpctesting
+# GotoHTTP
+npm run grpcgotohttp
+
+# GotoGRPC
+npm run grpcgotogrpc
+
+# ErrorTest
+npm run grpcerror
+
+# AsyncTest
+npm run grpcasync
 ```
--> Example Result
+
+# Scrape Metrics
 ```
-{
-  echo_request: { message_id: 'testing', message_body: 'testing' },
-  timestr: 'Tue Aug 03 2021 20:28:25 GMT+0800 (Taipei Standard Time)',
-  timestamp: '1627993705922'
-}
+npm run scrapemetrics
 ```
+
 
