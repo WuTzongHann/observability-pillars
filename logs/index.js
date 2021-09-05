@@ -1,7 +1,7 @@
 import winston from 'winston'
 import path from 'path'
 import PrometheusTransport from './prometheusTransport.js'
-import { isJSON } from '../utility.js'
+import { isJSON } from '../utility/index.js'
 
 const { combine, timestamp, printf } = winston.format
 

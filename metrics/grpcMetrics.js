@@ -1,5 +1,5 @@
 import prometheus from 'prom-client'
-import { status, statusesByCodes } from '../utility.js'
+import { status, statusesByCodes } from '../utility/index.js'
 
 const grpcRequestTotalCounter = new prometheus.Counter({
   name: 'grpc_requests_total',
@@ -52,6 +52,7 @@ const grpcMetricsInterceptor = async (ctx, next) => {
   const start = process.hrtime()
   try {
     await next()
+    ctx.locals.logger.info('', { service, method, statusCode: ctx.response.status.statusCode })
   } catch (err) {
     grpcErrorHandler(err, ctx)
   } finally {
