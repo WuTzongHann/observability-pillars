@@ -25,21 +25,23 @@ const main = async () => {
   const logger = new Logger()
 
   const httpServer = express()
-  // app = new App()
   httpServer.use(traces.httpMiddleware(logger))
   httpServer.use(metrics.httpMiddleware())
-  httpServer.use(morgan('tiny', {
-    stream: logger.stream
-  }))
+  httpServer.use(morgan(function (tokens, req, res) {
+    return JSON.stringify({
+      method: tokens.method(req, res),
+      url: tokens.url(req, res),
+      status: tokens.status(req, res),
+      'content-length': tokens.res(req, res, 'content-length'),
+      'response-time': tokens['response-time'](req, res)
+    })
+  }, { stream: logger.stream }))
   httpServer.use(express.json())
   httpServer.use(handlers.unsupportedMediaType)
   httpServer.use(defaultRouter)
   httpServer.use('/patients', patientsRouter)
   httpServer.use(handlers.notFound)
   httpServer.use(handlers.error)
-
-  // app.start
-  // httpServer.use(app.error)
   httpServer.listen(HTTP_PORT, () => {
     logger.info(`HTTP Server listening at http://localhost:${HTTP_PORT}`)
   })
