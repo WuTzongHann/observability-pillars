@@ -16,9 +16,7 @@
     "response-time": "^2.3.2",
     "winston": "^3.3.3"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.12"
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "startserver": "node server.js",
