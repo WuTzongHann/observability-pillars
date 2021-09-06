@@ -16,6 +16,7 @@ const {
 const HTTP_PORT = 8080
 const GRPC_PORT = 8081
 
+// NOTE: 分別做 HTTP 與 gRPC 的範例會比較好
 const main = async () => {
   const pillars = new Pillars({ PROTO_PATH: './grpc/protos/ping.proto' })
 

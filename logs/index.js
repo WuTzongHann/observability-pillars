@@ -13,19 +13,34 @@ const defaultOptions = {
 class Logger {
   constructor (userOptions = {}) {
     const options = { ...defaultOptions, ...userOptions }
-    const { defaultMeta, printAll } = options
+    const { defaultMeta, printAll, isDebug } = options
+    // NOTE: red flag: myFormat, 「你」是誰？ this is a BAD naming。無論如何想一個具有描述性的命名
     const myFormat = printf(info => {
+      // NOTE: red flag: again, DONT modify given argument to avoid potential bugs
       info = Object.keys(info).sort().reduce((result, key) => {
         result[key] = info[key]
         return result
       }, {})
       const { trace_id, span_id, level, timestamp, caller, message, ...others } = info
+      // NOTE: Object.assign(), the order maybe still rely on the underlying implementation? the order is not deterministic!!!
       const matched = Object.assign(
         { trace_id, span_id, level, timestamp, caller, message },
         printAll ? others : {}
       )
       return JSON.stringify(matched)
     })
+    // NOTE: 我試著用更簡潔的方式來重寫 myFormat。
+    // 目標是抽出 pre defined fields 然後 JSON formatting
+    // 又考慮 pretty printing 的需求應該只有 debug mode 會需要，故我覺得用 isDebug option 的語意比 printAll 好，
+    // 若非 debug mode，他只是一個 jsonFormatter。
+    // const jsonFormatter = printf(info => {
+    //   if (isDebug) {
+    //     return JSON.stringify(info,
+    //       ['trace_id', 'span_id', 'level', 'timestamp', 'caller', 'message'])
+    //       .concat(Object.keys(info))
+    //   }
+    //   return JSON.stringify(info)
+    // })
 
     this.logger = winston.createLogger({
       level: 'info',
@@ -41,6 +56,9 @@ class Logger {
     this.stream = {
       write: (message) => {
         if (typeof message !== 'string') {
+          // NOTE: 這個限制太「軟」了，應允許退化到 winston 原始的用法，把 user 的內容一樣印出來，但你可以多印些東西到 stderr 之類的作為提醒
+          // 或是有一個很「硬」的限制，出現此情況直接 throw error，讓 app crash 掉，避免上了 production 還期待有 log 被印出
+          // 且你最後其實也放一個 else，那為何一開始還需要檢查是否為 string？若只關心 isJSON() 那就除此之外退化到 winston default usage
           this.logger.error.apply(this.logger, formatLogArguments(['message is only accepted in a string format']))
         } else if (isJSON(message)) {
           const obj = JSON.parse(message)
@@ -63,8 +81,7 @@ class Logger {
 
   child (defaultMeta = {}) {
     const childLogger = new Logger({ defaultMeta })
-    const keys = Object.keys(defaultMeta)
-    keys.forEach((key) => {
+    Object.keys(defaultMeta).forEach(key => {
       childLogger[key] = defaultMeta[key]
     })
     return childLogger
