@@ -35,12 +35,9 @@ class Logger {
     // 若非 debug mode，他只是一個 jsonFormatter。
     // const jsonFormatter = printf(info => {
     //   if (isDebug) {
-    //     const { trace_id, span_id, level, timestamp, caller, message, ...others } = info
     //     return JSON.stringify(info,
-    //       Object.keys({
-    //         trace_id, span_id, level, timestamp, caller, message
-    //       }).sort()
-    //         .concat(Object.keys(others)))
+    //       ['trace_id', 'span_id', 'level', 'timestamp', 'caller', 'message'])
+    //       .concat(Object.keys(info))
     //   }
     //   return JSON.stringify(info)
     // })
